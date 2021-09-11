@@ -4,6 +4,6 @@ BishopPropagator::BishopPropagator(Piece* rootPiece, Piece* targetPiece) : Propa
 
 }
 
-void BishopPropagator::propagate() {
+void BishopPropagator::propagate(Game& game) {
     
 }

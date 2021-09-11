@@ -4,6 +4,6 @@ VerticalPropagator::VerticalPropagator(Piece* rootPiece, Piece* targetPiece) : P
 
 }
 
-void VerticalPropagator::propagate() {
-    
+void VerticalPropagator::propagate(Game& game) {
+
 }

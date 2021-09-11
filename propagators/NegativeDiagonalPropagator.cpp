@@ -4,6 +4,6 @@ NegativeDiagonalPropagator::NegativeDiagonalPropagator(Piece* rootPiece, Piece* 
 
 }
 
-void NegativeDiagonalPropagator::propagate() {
+void NegativeDiagonalPropagator::propagate(Game& game) {
     
 }

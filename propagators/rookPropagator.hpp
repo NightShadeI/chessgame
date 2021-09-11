@@ -6,7 +6,7 @@
 class RookPropagator : public Propagator {
     public:
         RookPropagator(Piece* rootPiece, Piece* targetPiece);
-        void propagate() override;
+        void propagate(Game& game) override;
 };
 
 #endif

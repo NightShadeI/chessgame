@@ -4,6 +4,6 @@ HorizontalPropagator::HorizontalPropagator(Piece* rootPiece, Piece* targetPiece)
 
 }
 
-void HorizontalPropagator::propagate() {
+void HorizontalPropagator::propagate(Game& game) {
     
 }

@@ -4,6 +4,6 @@ RookPropagator::RookPropagator(Piece* rootPiece, Piece* targetPiece) : Propagato
 
 }
 
-void RookPropagator::propagate() {
+void RookPropagator::propagate(Game& game) {
     
 }

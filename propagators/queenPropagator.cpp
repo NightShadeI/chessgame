@@ -4,6 +4,6 @@ QueenPropagator::QueenPropagator(Piece* rootPiece, Piece* targetPiece) : Propaga
 
 }
 
-void QueenPropagator::propagate() {
+void QueenPropagator::propagate(Game& game) {
     
 }

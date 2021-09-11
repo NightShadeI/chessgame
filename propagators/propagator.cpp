@@ -4,6 +4,6 @@ Propagator::Propagator(Piece* rootPiece, Piece* targetPiece) {
 
 }
 
-void Propagator::propagate() {
+void Propagator::propagate(Game& game) {
 
 }
