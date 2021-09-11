@@ -1,5 +1,6 @@
 #include "pieces/piece.hpp"
 #include "threatTile.hpp"
+#include "threatTile.hpp"
 #include <unordered_set>
 #include <vector>
 
@@ -23,6 +24,8 @@ class Game {
         vector<vector<ThreatTile*>> threatMap;
         unordered_set<Piece*> pieces;
         void setupPiece(Piece* newPiece);
+        void addThreat(Piece* attackingPiece, int xPos, int yPos);
+        void removeThreat(Piece* oldAttacker, int xPos, int yPos);
         int distanceToEnemyKing(Piece* p);
         Piece* getPieceAt(int boardX, int boardY);
         void movePiece(Piece* p, int newX, int newY);

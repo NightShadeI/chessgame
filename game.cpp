@@ -17,6 +17,26 @@ inline void Game::setupPiece(Piece* newPiece) {
     board[pieceY][pieceX] = newPiece;
 }
 
+void Game::addThreat(Piece* attackingPiece, int xPos, int yPos) {
+    ThreatTile* tile = threatMap[yPos][xPos];
+    tile->threatening.insert(attackingPiece);
+    if (attackingPiece->type == 1) {
+        tile->whiteCount++;
+    } else {
+        tile->blackCount++;
+    }
+}
+
+void Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
+    ThreatTile* tile = threatMap[yPos][xPos];
+    tile->threatening.erase(oldAttacker);
+    if (oldAttacker->type == 1) {
+        tile->whiteCount--;
+    } else {
+        tile->blackCount--;
+    }
+}
+
 void Game::constructBoard() {
     const int BOARD_SIZE = 8;
     board.resize(BOARD_SIZE);

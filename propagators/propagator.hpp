@@ -12,6 +12,7 @@ class Propagator {
         Move* movePerformed;
         virtual void propagate(Game& game);
         void updater(Game& game, int xStart, int yStart, int xDir, int yDir, bool threaten);
+        inline static Propagator fetchPropagator(Piece* queryPiece, Move* queryMove, bool updateFrom);
 };
 
 #endif

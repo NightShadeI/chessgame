@@ -78,13 +78,7 @@ vector<vector<ThreatTile*>> setupThreatMap(Game& game) {
         vector<Move*> pieceMoves = p->getMoves(game);
         for (Move* m : pieceMoves) {
             if (p->getPieceName() != "Pawn" || p->xPos != m->xTo) {
-                ThreatTile* tile = threatMap[m->yTo][m->xTo];
-                tile->threatening.insert(p);
-                if (p->type == 1) {
-                    tile->whiteCount++;
-                } else {
-                    tile->blackCount++;
-                }
+                game.addThreat(p, m->xTo, m->yTo);
             } else {
             }
             delete m;
