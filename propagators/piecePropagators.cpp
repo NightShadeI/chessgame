@@ -4,27 +4,89 @@
 namespace PiecePropagators {
 
     void knightSetup(Game& game, Piece* knight, bool destructure) {
-
+        const std::vector<std::pair<int, int>> dirs = {
+            {-2,  1},
+            {-1,  2},
+            { 1,  2},
+            { 2,  1},
+            { 2, -1},
+            { 1, -2},
+            {-1, -2},
+            {-2, -1}
+        };
+        for (auto& p: dirs) {
+            int nextX = knight->xPos + p.first;
+            int nextY = knight->yPos + p.second;
+            if (destructure) {
+                game.removeThreat(knight, nextX, nextY);
+            } else {
+                game.addThreat(knight, nextX, nextY);
+            }
+        }
     }
 
     void bishopSetup(Game& game, Piece* bishop, bool destructure) {
-
+        Propagator propagator(bishop, nullptr);
+        const std::vector<std::pair<int, int>> dirs = {
+            {-1,  1},
+            { 1,  1},
+            { 1, -1},
+            {-1, -1}
+        };
+        for (auto& p: dirs) {
+            propagator.updater(game, bishop->xPos + p.first, bishop->yPos + p.second,  p.first, p.second, !destructure);
+        }
     }
 
     void rookSetup(Game& game, Piece* rook, bool destructure) {
-
+        Propagator propagator(rook, nullptr);
+        const std::vector<std::pair<int, int>> dirs = {
+            { 0,  1},
+            { 1,  0},
+            { 0, -1},
+            {-1,  0}
+        };
+        for (auto& p: dirs) {
+            propagator.updater(game, rook->xPos + p.first, rook->yPos + p.second, p.first, p.second, !destructure);
+        }
     }
 
     void queenSetup(Game& game, Piece* queen, bool destructure) {
-
+        // A queen is just really a combination of a rook and a bishop
+        rookSetup(game, queen, destructure);
+        bishopSetup(game, queen, destructure);
     }
 
     void kingSetup(Game& game, Piece* king, bool destructure) {
-
+        const std::vector<std::pair<int, int>> dirs = {
+            {-1,  1},
+            { 0,  1},
+            { 1,  1},
+            { 1,  0},
+            { 1, -1},
+            { 0, -1},
+            {-1, -1},
+            {-1,  0}
+        };
+        for (auto& p: dirs) {
+            int nextX = king->xPos + p.first;
+            int nextY = king->yPos + p.second;
+            if (destructure) {
+                game.removeThreat(king, nextX, nextY);
+            } else {
+                game.addThreat(king, nextX, nextY);
+            }
+        }
     }
 
     void pawnSetup(Game& game, Piece* pawn, bool destructure) {
-
+        if (destructure) {
+            game.removeThreat(pawn, pawn->xPos - 1, pawn->yPos - pawn->type);
+            game.removeThreat(pawn, pawn->xPos + 1, pawn->yPos - pawn->type);
+        } else {
+            game.addThreat(pawn, pawn->xPos - 1, pawn->yPos - pawn->type);
+            game.addThreat(pawn, pawn->xPos + 1, pawn->yPos - pawn->type);
+        }
     }
 
     void knightUpdater(Game& game, Piece* knight, int newX, int newY) {
@@ -141,10 +203,9 @@ namespace PiecePropagators {
     }
 
     void pawnUpdater(Game& game, Piece* pawn, int newX, int newY) {
-        int yDir = (newY - pawn->yPos > 0) ? 1 : -1;
-        game.removeThreat(pawn, pawn->xPos + 1, pawn->yPos + yDir);
-        game.removeThreat(pawn, pawn->xPos - 1, pawn->yPos + yDir);
-        game.addThreat(pawn, newX + 1, newY + yDir);
-        game.addThreat(pawn, newX - 1, newY + yDir);
+        game.removeThreat(pawn, pawn->xPos + 1, pawn->yPos - pawn->type);
+        game.removeThreat(pawn, pawn->xPos - 1, pawn->yPos - pawn->type);
+        game.addThreat(pawn, newX + 1, newY - pawn->type);
+        game.addThreat(pawn, newX - 1, newY - pawn->type);
     }
 }
