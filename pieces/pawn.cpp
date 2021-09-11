@@ -83,6 +83,10 @@ std::vector<Move*> Pawn::getMoves(Game& game) {
     return moves;
 }
 
+void Pawn::setup(Game& game) {
+    PiecePropagators::pawnSetup(game, this);
+}
+
 void Pawn::updateThreats(Game& game, int newX, int newY) {
     PiecePropagators::pawnUpdater(game, this, newX, newY);
 }

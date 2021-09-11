@@ -119,6 +119,9 @@ bool Piece::isValidMove(Game& game, int newX, int newY) {
     return false;
 }
 
+void Piece::setup(Game& game) {
+}
+
 void Piece::updateThreats(Game& game, int newX, int newY) {
 
 }

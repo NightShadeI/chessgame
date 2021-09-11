@@ -73,12 +73,8 @@ void setupThreatMap(Game& game) {
         }
     }
     for (Piece* p : game.pieces) {
-        vector<Move*> pieceMoves = p->getMoves(game);
-        for (Move* m : pieceMoves) {
-            if (p->getPieceName() != "Pawn" || p->xPos != m->xTo) {
-                game.addThreat(p, m->xTo, m->yTo);
-            }
-            delete m;
-        }
+        // temporarily call twice, for debugging
+        p->setup(game);
+        p->setup(game);
     }
 }

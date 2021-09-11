@@ -11,6 +11,7 @@ class Pawn : public Piece {
         bool isValidMove(Game& game, int newX, int newY);
         std::vector<Move*> getMoves(Game& game) override;
         int getPieceValue() override;
+        void setup(Game& game) override;
         void updateThreats(Game& game, int newX, int newY) override;
     private:
         inline Move* generateMove(Game& game, int newX, int newY);
