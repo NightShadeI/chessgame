@@ -62,17 +62,29 @@ void setupBoard(Game& game, string& FENstring) {
     // TODO: Add support for castling, enpessant etc
 }
 
-vector<vector<unordered_set<Piece*>>> setupThreatMap(Game& game) {
-    vector<vector<unordered_set<Piece*>>> threatMap;
+vector<vector<ThreatTile*>> setupThreatMap(Game& game) {
+    vector<vector<ThreatTile*>> threatMap;
     threatMap.resize(Board::height);
     for (auto& row : threatMap) {
         row.resize(Board::width);
+        for (int i = 0; i < row.size(); i++) {
+            ThreatTile* tile = new ThreatTile;
+            tile->whiteCount = 0;
+            tile->blackCount = 0;
+            row[i] = tile;
+        }
     }
     for (Piece* p : game.pieces) {
         vector<Move*> pieceMoves = p->getMoves(game);
         for (Move* m : pieceMoves) {
             if (p->getPieceName() != "Pawn" || p->xPos != m->xTo) {
-                threatMap[m->yTo][m->xTo].insert(p);
+                ThreatTile* tile = threatMap[m->yTo][m->xTo];
+                tile->threatening.insert(p);
+                if (p->type == 1) {
+                    tile->whiteCount++;
+                } else {
+                    tile->blackCount++;
+                }
             } else {
             }
             delete m;

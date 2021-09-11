@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "threatTile.hpp"
 #include <iostream>
 
 using namespace std;
@@ -19,11 +20,12 @@ void Board::render(RenderWindow& window, Game& game) {
             chessTile.setFillColor(tileColour);
             chessTile.setPosition(Board::tileSize * c, Board::tileSize * r);
             window.draw(chessTile);
-            // if (game.threatMap[r][c].size()) {
-            //     threatCircle.setFillColor(Color(255, 0, 0, 100));
-            //     threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
-            //     window.draw(threatCircle);
-            // }
+            ThreatTile* tile = game.threatMap[r][c];
+            if (tile->whiteCount) {
+                threatCircle.setFillColor(Color(255, 0, 0, 100));
+                threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
+                window.draw(threatCircle);
+            }
         }
     }
 }
