@@ -3,6 +3,30 @@
 
 namespace PiecePropagators {
 
+    void knightSetup(Game& game, Piece* knight, bool destructure) {
+
+    }
+
+    void bishopSetup(Game& game, Piece* bishop, bool destructure) {
+
+    }
+
+    void rookSetup(Game& game, Piece* rook, bool destructure) {
+
+    }
+
+    void queenSetup(Game& game, Piece* queen, bool destructure) {
+
+    }
+
+    void kingSetup(Game& game, Piece* king, bool destructure) {
+
+    }
+
+    void pawnSetup(Game& game, Piece* pawn, bool destructure) {
+
+    }
+
     void knightUpdater(Game& game, Piece* knight, int newX, int newY) {
         const std::vector<std::pair<int, int>> dirs = {
             {-2,  1},
