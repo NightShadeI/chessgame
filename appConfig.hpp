@@ -8,6 +8,6 @@
 
 extern std::string DEFAULT_FEN;
 void setupBoard(Game& game, std::string& FENstring);
-vector<vector<ThreatTile*>> setupThreatMap(Game& game);
+void setupThreatMap(Game& game);
 
 #endif

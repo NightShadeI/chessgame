@@ -2,6 +2,7 @@
 #include "../game.hpp"
 #include "../board.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <cmath>
 
@@ -78,6 +79,10 @@ std::vector<Move*> Pawn::getMoves(Game& game) {
     pieceAt = game.getPieceAt(xPos, yPos - type * 2);
     if (pieceAt) return moves;
     moves.emplace_back(generateMove(game, xPos, yPos - type * 2));
-    
+
     return moves;
+}
+
+void Pawn::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::pawnUpdater(game, this, newX, newY);
 }

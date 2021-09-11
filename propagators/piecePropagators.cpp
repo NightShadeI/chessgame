@@ -1,6 +1,5 @@
 #include "piecePropagators.hpp"
 #include "propagator.hpp"
-#include "../board.hpp"
 
 namespace PiecePropagators {
 
@@ -118,10 +117,10 @@ namespace PiecePropagators {
     }
 
     void pawnUpdater(Game& game, Piece* pawn, int newX, int newY) {
-        int yDir = newY - pawn->yPos;
-        game.removeThreat(pawn, pawn->xPos + 1, yDir);
-        game.removeThreat(pawn, pawn->xPos - 1, yDir);
-        game.addThreat(pawn, newX + 1, yDir);
-        game.addThreat(pawn, newX - 1, yDir);
+        int yDir = (newY - pawn->yPos > 0) ? 1 : -1;
+        game.removeThreat(pawn, pawn->xPos + 1, pawn->yPos + yDir);
+        game.removeThreat(pawn, pawn->xPos - 1, pawn->yPos + yDir);
+        game.addThreat(pawn, newX + 1, newY + yDir);
+        game.addThreat(pawn, newX - 1, newY + yDir);
     }
 }

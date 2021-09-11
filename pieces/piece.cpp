@@ -19,9 +19,12 @@ void Piece::loadTexture() {
     myTexture.loadFromFile(getPiecePath());
 }
 
-void Piece::doMove(Move& move, bool undo) {
+void Piece::doMove(Game& game, Move& move, bool undo) {
     int xMove = undo ? move.xFrom : move.xTo;
     int yMove = undo ? move.yFrom : move.yTo;
+    if (!undo) {
+        updateThreats(game, xMove, yMove);
+    }
     xPos = xMove; 
     yPos = yMove;
     dragOffsetX = 0;
@@ -114,4 +117,8 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
 
 bool Piece::isValidMove(Game& game, int newX, int newY) {
     return false;
+}
+
+void Piece::updateThreats(Game& game, int newX, int newY) {
+
 }

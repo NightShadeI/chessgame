@@ -17,7 +17,7 @@ class Piece {
         sf::Texture myTexture;
         void loadTexture();
         void render(sf::RenderWindow& window);
-        void doMove(Move& move, bool undo = false);
+        void doMove(Game& game, Move& move, bool undo = false);
         virtual std::vector<Move*> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
         bool canDoMove(Game& game, int newX, int newY);
@@ -25,6 +25,7 @@ class Piece {
         virtual std::string getPieceName();
         virtual int getPieceValue();
         virtual int getXTranslation();
+        virtual void updateThreats(Game& game, int newX, int newY);
         std::string getPiecePath();
 };
 

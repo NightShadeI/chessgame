@@ -46,7 +46,7 @@ void Game::constructBoard() {
         board[i].resize(BOARD_SIZE);
     }
     setupBoard(*this, DEFAULT_FEN);
-    threatMap = setupThreatMap(*this);
+    setupThreatMap(*this);
 }
 
 Piece* Game::getPieceAt(int boardX, int boardY) {
@@ -99,7 +99,7 @@ void Game::movePiece(Piece* p, int newX, int newY) {
     move->xTo = newX;
     move->yTo = newY;
     moveHistory.emplace_back(move);
-    p->doMove(*move);
+    p->doMove(*this, *move);
 }
 
 void Game::undoMove() {
@@ -130,7 +130,7 @@ void Game::undoMove() {
     }
     totalMoves--;
     currentTurn = -currentTurn;
-    movedPiece->doMove(*moveTaken, true);
+    movedPiece->doMove(*this, *moveTaken, true);
     delete moveTaken;
 }
 

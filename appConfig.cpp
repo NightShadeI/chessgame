@@ -8,7 +8,6 @@
 #include "pieces/king.hpp"
 #include "move.hpp"
 #include "board.hpp"
-#include <iostream>
 
 std::string DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
@@ -62,10 +61,9 @@ void setupBoard(Game& game, string& FENstring) {
     // TODO: Add support for castling, enpessant etc
 }
 
-vector<vector<ThreatTile*>> setupThreatMap(Game& game) {
-    vector<vector<ThreatTile*>> threatMap;
-    threatMap.resize(Board::height);
-    for (auto& row : threatMap) {
+void setupThreatMap(Game& game) {
+    game.threatMap.resize(Board::height);
+    for (auto& row : game.threatMap) {
         row.resize(Board::width);
         for (int i = 0; i < row.size(); i++) {
             ThreatTile* tile = new ThreatTile;
@@ -79,10 +77,8 @@ vector<vector<ThreatTile*>> setupThreatMap(Game& game) {
         for (Move* m : pieceMoves) {
             if (p->getPieceName() != "Pawn" || p->xPos != m->xTo) {
                 game.addThreat(p, m->xTo, m->yTo);
-            } else {
             }
             delete m;
         }
     }
-    return threatMap;
 }

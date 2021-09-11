@@ -3,7 +3,7 @@
 #include "../move.hpp"
 
 #ifndef PROPAGATOR_H
-#define PROPGAGATOR_H
+#define PROPAGATOR_H
 
 class Propagator {
     public:
