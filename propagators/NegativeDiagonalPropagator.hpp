@@ -5,7 +5,7 @@
 
 class NegativeDiagonalPropagator : public Propagator {
     public:
-        NegativeDiagonalPropagator(Piece* rootPiece, Piece* targetPiece);
+        NegativeDiagonalPropagator(Piece* rootPiece, Move* movePerformed);
         void propagate(Game& game) override;
 };
 

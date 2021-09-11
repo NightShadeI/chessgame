@@ -5,7 +5,7 @@
 
 class BishopPropagator : public Propagator {
     public:
-        BishopPropagator(Piece* rootPiece, Piece* targetPiece);
+        BishopPropagator(Piece* rootPiece, Move* movePerformed);
         void propagate(Game& game) override;
 };
 

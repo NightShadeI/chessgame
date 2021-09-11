@@ -1,6 +1,6 @@
 #include "rookPropagator.hpp"
 
-RookPropagator::RookPropagator(Piece* rootPiece, Piece* targetPiece) : Propagator(rootPiece, targetPiece) {
+RookPropagator::RookPropagator(Piece* rootPiece, Move* movePerformed) : Propagator(rootPiece, movePerformed) {
 
 }
 

@@ -5,7 +5,7 @@
 
 class PositiveDiagonalPropagator : public Propagator {
     public:
-        PositiveDiagonalPropagator(Piece* rootPiece, Piece* targetPiece);
+        PositiveDiagonalPropagator(Piece* rootPiece, Move* movePerformed);
         void propagate(Game& game) override;
 };
 

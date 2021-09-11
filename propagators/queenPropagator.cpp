@@ -1,6 +1,6 @@
 #include "queenPropagator.hpp"
 
-QueenPropagator::QueenPropagator(Piece* rootPiece, Piece* targetPiece) : Propagator(rootPiece, targetPiece) {
+QueenPropagator::QueenPropagator(Piece* rootPiece, Move* movePerformed) : Propagator(rootPiece, movePerformed) {
 
 }
 

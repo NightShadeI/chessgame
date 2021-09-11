@@ -5,7 +5,7 @@
 
 class RookPropagator : public Propagator {
     public:
-        RookPropagator(Piece* rootPiece, Piece* targetPiece);
+        RookPropagator(Piece* rootPiece, Move* movePerformed);
         void propagate(Game& game) override;
 };
 

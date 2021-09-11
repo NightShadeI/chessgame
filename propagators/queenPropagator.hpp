@@ -5,7 +5,7 @@
 
 class QueenPropagator : public Propagator {
     public:
-        QueenPropagator(Piece* rootPiece, Piece* targetPiece);
+        QueenPropagator(Piece* rootPiece, Move* movePerformed);
         void propagate(Game& game) override;
 };
 
