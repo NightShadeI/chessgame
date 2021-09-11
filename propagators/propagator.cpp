@@ -42,7 +42,7 @@ Propagator Propagator::fetchPropagator(Piece* queryPiece, Move* queryMove, bool 
     int xDistance = xRef - queryPiece->xPos;
     int yDistance = yRef - queryPiece->yPos;
     if (xDistance > 0 == yDistance > 0) {
-        return PositiveDiagonalPropagator(queryPiece, queryMove);
+        return NegativeDiagonalPropagator(queryPiece, queryMove);  
     }
-    return NegativeDiagonalPropagator(queryPiece, queryMove);
+    return PositiveDiagonalPropagator(queryPiece, queryMove);
 }

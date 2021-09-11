@@ -18,6 +18,7 @@ inline void Game::setupPiece(Piece* newPiece) {
 }
 
 void Game::addThreat(Piece* attackingPiece, int xPos, int yPos) {
+    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return;
     ThreatTile* tile = threatMap[yPos][xPos];
     tile->threatening.insert(attackingPiece);
     if (attackingPiece->type == 1) {
@@ -28,6 +29,7 @@ void Game::addThreat(Piece* attackingPiece, int xPos, int yPos) {
 }
 
 void Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
+    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return;
     ThreatTile* tile = threatMap[yPos][xPos];
     tile->threatening.erase(oldAttacker);
     if (oldAttacker->type == 1) {
