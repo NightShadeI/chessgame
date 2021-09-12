@@ -3,15 +3,18 @@
 #include "../threatTile.hpp"
 #include "verticalPropagator.hpp"
 #include "horizontalPropagator.hpp"
-#include "PositiveDiagonalPropagator.hpp"
-#include "NegativeDiagonalPropagator.hpp"
+#include "positiveDiagonalPropagator.hpp"
+#include "negativeDiagonalPropagator.hpp"
 
 Propagator::Propagator(Piece* rootPiece, Move* movePerformed) {
     this->rootPiece = rootPiece;
     this->movePerformed = movePerformed;
 }
 
-void Propagator::propagate(Game& game) {
+void Propagator::openPropagation(Game& game) {
+}
+
+void Propagator::closePropagation(Game& game) {
 }
 
 void Propagator::updater(Game& game, int xStart, int yStart, int xDir, int yDir, bool threaten) {
@@ -29,20 +32,20 @@ void Propagator::updater(Game& game, int xStart, int yStart, int xDir, int yDir,
     }
 }
 
-Propagator Propagator::fetchPropagator(Piece* queryPiece, Move* queryMove, bool updateFrom) {
+Propagator* Propagator::fetchPropagator(Piece* queryPiece, Move* queryMove, bool updateFrom) {
     int xRef = updateFrom ? queryMove->xFrom : queryMove->xTo;
     int yRef = updateFrom ? queryMove->yFrom : queryMove->yTo;
     if (xRef == queryPiece->xPos) {
-        return VerticalPropagator(queryPiece, queryMove);
+        return new VerticalPropagator(queryPiece, queryMove);
     }
     if (yRef == queryPiece->yPos) {
-        return HorizontalPropagator(queryPiece, queryMove);
+        return new HorizontalPropagator (queryPiece, queryMove);
     }
     // We need a diagonal updater
     int xDistance = xRef - queryPiece->xPos;
     int yDistance = yRef - queryPiece->yPos;
     if (xDistance > 0 == yDistance > 0) {
-        return NegativeDiagonalPropagator(queryPiece, queryMove);  
+        return new NegativeDiagonalPropagator (queryPiece, queryMove);  
     }
-    return PositiveDiagonalPropagator(queryPiece, queryMove);
+    return new PositiveDiagonalPropagator (queryPiece, queryMove); 
 }

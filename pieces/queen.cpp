@@ -61,6 +61,6 @@ void Queen::setup(Game& game) {
     PiecePropagators::queenSetup(game, this);
 }
 
-void Queen::updateThreats(Game& game, int newX, int newY) {
-    PiecePropagators::queenUpdater(game, this, newX, newY);
+void Queen::updateThreats(Game& game, int newX, int newY, Piece* captured) {
+    PiecePropagators::queenUpdater(game, this, newX, newY, captured);
 }

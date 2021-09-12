@@ -6,7 +6,6 @@
 #include "agents/randomMover.hpp"
 #include "agents/bruteForceMover.hpp"
 #include "agents/monteCarloMover.hpp"
-#include <iostream>
 
 using namespace std;
 using namespace sf;

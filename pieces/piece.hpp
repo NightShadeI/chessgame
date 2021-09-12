@@ -26,7 +26,7 @@ class Piece {
         virtual int getPieceValue();
         virtual int getXTranslation();
         virtual void setup(Game& game);
-        virtual void updateThreats(Game& game, int newX, int newY);
+        virtual void updateThreats(Game& game, int newX, int newY, Piece* captured);
         std::string getPiecePath();
 };
 

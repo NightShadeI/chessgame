@@ -3,6 +3,7 @@
 #include "board.hpp"
 #include "appConfig.hpp"
 #include "pieces/queen.hpp"
+#include "propagators/piecePropagators.hpp"
 
 using namespace std;
 
@@ -73,18 +74,14 @@ void Game::movePiece(Piece* p, int newX, int newY) {
     board[p->yPos][p->xPos] = nullptr;
     Piece* toCapture = board[newY][newX];
     bool isPawn = p->getPieceName() == "Pawn";
+    bool isPromotion = isPawn && (newY == 0 || newY == Board::height-1);
+    if (!isPromotion) {
+        board[newY][newX] = p;
+    }
     if (toCapture) {
         pieces.erase(toCapture);
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
-    }
-    if (isPawn && (newY == 0 || newY == Board::height-1)) {
-        Queen* queen = new Queen(newX, newY, pieceType);
-        pieces.erase(p);
-        setupPiece(queen);
-        gameScore -= 80 * pieceType;
-    } else {
-        board[newY][newX] = p;
     }
     if (p->getPieceName() != "King") {
         gameScore -= KING_CLOSE_WEIGHT * (p->yPos - newY);
@@ -100,6 +97,13 @@ void Game::movePiece(Piece* p, int newX, int newY) {
     move->yTo = newY;
     moveHistory.emplace_back(move);
     p->doMove(*this, *move);
+    if (isPromotion) {
+        Queen* queen = new Queen(newX, newY, pieceType);
+        pieces.erase(p);
+        setupPiece(queen);
+        queen->setup(*this);
+        gameScore -= 80 * pieceType;
+    }  
 }
 
 void Game::undoMove() {

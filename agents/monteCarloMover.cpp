@@ -3,7 +3,7 @@
 #include <random>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
+
 MonteCarloMover::MonteCarloMover(int d, int t) {
     depth = d;
     trails = t;
@@ -48,7 +48,6 @@ Move& MonteCarloMover::getMove(Game& game) {
         int trials = timesExplored[m];
         if (trials == 0) continue;
         float average = (float)score/trials;
-        cout << m->moved->getPieceName() << " " << m->xTo << " " << m->yTo << " " << average << endl;
         if (average < bestAverage) {
             bestAverage = average;
             bestMove = m;

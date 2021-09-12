@@ -13,6 +13,10 @@ compile:
 	g++ -I sfml/src/include -c pieces/queen.cpp
 	g++ -I sfml/src/include -c pieces/king.cpp
 	g++ -I sfml/src/include -c propagators/propagator.cpp
+	g++ -I sfml/src/include -c propagators/horizontalPropagator.cpp
+	g++ -I sfml/src/include -c propagators/verticalPropagator.cpp
+	g++ -I sfml/src/include -c propagators/negativeDiagonalPropagator.cpp
+	g++ -I sfml/src/include -c propagators/positiveDiagonalPropagator.cpp
 	g++ -I sfml/src/include -c propagators/piecePropagators.cpp
 	g++ -I sfml/src/include -c agents/agent.cpp
 	g++ -I sfml/src/include -c agents/randomMover.cpp
@@ -21,7 +25,7 @@ compile:
 
 
 link: 
-	g++.exe -static -static-libgcc -static-libstdc++ main.o game.o board.o appConfig.o piece.o pawn.o rook.o knight.o bishop.o queen.o king.o propagator.o piecePropagators.o agent.o bruteForceMover.o randomMover.o monteCarloMover.o -o libs/main -L sfml/src/lib -lsfml-graphics -lsfml-window -lsfml-system
+	g++.exe -static -static-libgcc -static-libstdc++ main.o game.o board.o appConfig.o piece.o pawn.o rook.o knight.o bishop.o queen.o king.o propagator.o piecePropagators.o horizontalPropagator.o verticalPropagator.o negativeDiagonalPropagator.o positiveDiagonalPropagator.o agent.o bruteForceMover.o randomMover.o monteCarloMover.o -o libs/main -L sfml/src/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 run:
 	./libs/main.exe

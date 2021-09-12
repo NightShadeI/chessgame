@@ -6,7 +6,8 @@
 class HorizontalPropagator : public Propagator {
     public:
         HorizontalPropagator(Piece* rootPiece, Move* movePerformed);
-        void propagate(Game& game) override;
+        void openPropagation(Game& game) override;
+        void closePropagation(Game& game) override;
 };
 
 #endif

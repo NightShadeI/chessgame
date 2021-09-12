@@ -52,6 +52,6 @@ void Rook::setup(Game& game) {
     PiecePropagators::rookSetup(game, this);
 }
 
-void Rook::updateThreats(Game& game, int newX, int newY) {
-    PiecePropagators::rookUpdater(game, this, newX, newY);
+void Rook::updateThreats(Game& game, int newX, int newY, Piece* captured) {
+    PiecePropagators::rookUpdater(game, this, newX, newY, captured);
 }

@@ -56,6 +56,6 @@ void King::setup(Game& game) {
     PiecePropagators::kingSetup(game, this);
 }
 
-void King::updateThreats(Game& game, int newX, int newY) {
+void King::updateThreats(Game& game, int newX, int newY, Piece* captured) {
     PiecePropagators::kingUpdater(game, this, newX, newY);
 }

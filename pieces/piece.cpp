@@ -3,6 +3,8 @@
 #include "../board.hpp"
 #include "../move.hpp"
 #include "../board.hpp"
+#include "../threatTile.hpp"
+#include "../propagators/propagator.hpp"
 #include <vector>
 #include <unordered_set>
 #include <string>
@@ -23,7 +25,33 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
     int xMove = undo ? move.xFrom : move.xTo;
     int yMove = undo ? move.yFrom : move.yTo;
     if (!undo) {
-        updateThreats(game, xMove, yMove);
+        ThreatTile* tileFrom = game.threatMap[yPos][xPos];
+        ThreatTile* tileTo = game.threatMap[yMove][xMove];
+        for (Piece* p : tileFrom->threatening) {
+            string pieceName = p->getPieceName();
+            // We should not update ourselves
+            if (p == this) continue;
+            // We can skip any of these pieces, they do not update
+            if (pieceName == "King") continue;
+            if (pieceName == "Pawn") continue;
+            if (pieceName == "Knight") continue;
+            Propagator* prop = Propagator::fetchPropagator(p, &move, true);
+            prop->openPropagation(game);
+            delete prop;
+        }
+        updateThreats(game, xMove, yMove, move.captured);
+        for (Piece* p : tileTo->threatening) {
+            string pieceName = p->getPieceName();
+            // We should not update ourselves
+            if (p == this) continue;
+            // We can skip any of these pieces, they do not update
+            if (pieceName == "King") continue;
+            if (pieceName == "Pawn") continue;
+            if (pieceName == "Knight") continue;
+            Propagator* prop = Propagator::fetchPropagator(p, &move, false);
+            prop->closePropagation(game);
+            delete prop;
+        }
     }
     xPos = xMove; 
     yPos = yMove;
@@ -68,6 +96,7 @@ std::string Piece::getPiecePath() {
 }
 
 bool Piece::canDoMove(Game& game, int newX, int newY) {
+    return true;
     
     // Check the move is inside the the board
     if ((unsigned)newX >= Board::width || (unsigned)newY >= Board::height) return false;
@@ -122,6 +151,6 @@ bool Piece::isValidMove(Game& game, int newX, int newY) {
 void Piece::setup(Game& game) {
 }
 
-void Piece::updateThreats(Game& game, int newX, int newY) {
+void Piece::updateThreats(Game& game, int newX, int newY, Piece* captured) {
 
 }

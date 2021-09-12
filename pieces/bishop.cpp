@@ -59,6 +59,6 @@ void Bishop::setup(Game& game) {
     PiecePropagators::bishopSetup(game, this);
 }
 
-void Bishop::updateThreats(Game& game, int newX, int newY) {
-    PiecePropagators::bishopUpdater(game, this, newX, newY);
+void Bishop::updateThreats(Game& game, int newX, int newY, Piece* captured) {
+    PiecePropagators::bishopUpdater(game, this, newX, newY, captured);
 }

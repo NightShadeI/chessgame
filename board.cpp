@@ -1,7 +1,6 @@
 #include "board.hpp"
 #include "threatTile.hpp"
 #include "pieces/piece.hpp"
-#include <iostream>
 
 using namespace std;
 using namespace sf;

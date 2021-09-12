@@ -12,7 +12,7 @@ class Bishop : public Piece {
         int getPieceValue() override;
         std::vector<Move*> getMoves(Game& game) override;
         void setup(Game& game) override;
-        void updateThreats(Game& game, int newX, int newY) override;
+        void updateThreats(Game& game, int newX, int newY, Piece* captured) override;
 };
 
 #endif

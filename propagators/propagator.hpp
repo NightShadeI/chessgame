@@ -10,9 +10,10 @@ class Propagator {
         Propagator(Piece* rootPiece, Move* movePerformed);
         Piece* rootPiece;
         Move* movePerformed;
-        virtual void propagate(Game& game);
+        virtual void openPropagation(Game& game);
+        virtual void closePropagation(Game& game);
         void updater(Game& game, int xStart, int yStart, int xDir, int yDir, bool threaten);
-        inline static Propagator fetchPropagator(Piece* queryPiece, Move* queryMove, bool updateFrom);
+        static Propagator* fetchPropagator(Piece* queryPiece, Move* queryMove, bool updateFrom);
 };
 
 #endif

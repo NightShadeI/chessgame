@@ -87,6 +87,6 @@ void Pawn::setup(Game& game) {
     PiecePropagators::pawnSetup(game, this);
 }
 
-void Pawn::updateThreats(Game& game, int newX, int newY) {
+void Pawn::updateThreats(Game& game, int newX, int newY, Piece* captured) {
     PiecePropagators::pawnUpdater(game, this, newX, newY);
 }

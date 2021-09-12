@@ -1,6 +1,6 @@
 #include "piecePropagators.hpp"
 #include "propagator.hpp"
-#include <iostream>
+
 namespace PiecePropagators {
 
     void knightSetup(Game& game, Piece* knight, bool destructure) {
@@ -36,6 +36,7 @@ namespace PiecePropagators {
         for (auto& p: dirs) {
             propagator.updater(game, bishop->xPos + p.first, bishop->yPos + p.second,  p.first, p.second, !destructure);
         }
+        game.addThreat(bishop, bishop->xPos, bishop->yPos);
     }
 
     void rookSetup(Game& game, Piece* rook, bool destructure) {
@@ -49,12 +50,15 @@ namespace PiecePropagators {
         for (auto& p: dirs) {
             propagator.updater(game, rook->xPos + p.first, rook->yPos + p.second, p.first, p.second, !destructure);
         }
+        game.addThreat(rook, rook->xPos, rook->yPos);
     }
 
     void queenSetup(Game& game, Piece* queen, bool destructure) {
         // A queen is just really a combination of a rook and a bishop
         rookSetup(game, queen, destructure);
         bishopSetup(game, queen, destructure);
+        // its own attack square was added twice, so remove 1
+        game.removeThreat(queen, queen->xPos, queen->yPos);
     }
 
     void kingSetup(Game& game, Piece* king, bool destructure) {
@@ -110,7 +114,7 @@ namespace PiecePropagators {
         }
     }
 
-    void bishopUpdater(Game& game, Piece* bishop, int newX, int newY) {
+    void bishopUpdater(Game& game, Piece* bishop, int newX, int newY, Piece* captured) {
         Propagator propagator(bishop, nullptr);
         int xDiff = newX - bishop->xPos;
         int yDiff = newY - bishop->yPos;
@@ -126,28 +130,41 @@ namespace PiecePropagators {
             propagator.updater(game, newX + 1, newY + 1,  1,   1, true);
             propagator.updater(game, newX - 1, newY - 1, -1,  -1, true);
         }
+        if (captured) {
+            int xDir = xDiff > 0 ? 1 : -1;
+            int yDir = yDiff > 0 ? 1 : -1;
+            propagator.updater(game, newX + xDir, newY + yDir, xDir, yDir, true);
+        }
     }
 
-    void rookUpdater(Game& game, Piece* rook, int newX, int newY) {
+    void rookUpdater(Game& game, Piece* rook, int newX, int newY, Piece* captured) {
         Propagator propagator(rook, nullptr);
         if (rook->xPos == newX) {
             propagator.updater(game, rook->xPos - 1, rook->yPos, -1,  0, false);
             propagator.updater(game, rook->xPos + 1, rook->yPos,  1,  0, false);
             propagator.updater(game, newX - 1, newY, -1, 0, true);
             propagator.updater(game, newX + 1, newY,  1, 0, true);
+            if (captured) {
+                int yDir = (newY - rook->yPos) > 0 ? 1 : -1;
+                propagator.updater(game, newX, newY + yDir, 0, yDir, true);
+            }
         } else {
             propagator.updater(game, rook->xPos, rook->yPos + 1,  0,  1, false);
             propagator.updater(game, rook->xPos, rook->yPos - 1,  0, -1, false);
             propagator.updater(game, newX, newY + 1,  0,  1, true);
             propagator.updater(game, newX, newY - 1,  0, -1, true);
+            if (captured) {
+                int xDir = (newX - rook->xPos) > 0 ? 1 : -1;
+                propagator.updater(game, newX + xDir, newY, xDir, 0, true);
+            }
         }
     }
 
-    void queenUpdater(Game& game, Piece* queen, int newX, int newY) {
+    void queenUpdater(Game& game, Piece* queen, int newX, int newY, Piece* captured) {
         Propagator propagator(queen, nullptr);
         // Check if the queen did a rook or bishop move
         if (queen->xPos == newX || queen->yPos == newY) {
-            rookUpdater(game, queen, newX, newY);
+            rookUpdater(game, queen, newX, newY, captured);
             // Remove old diagonal threats
             propagator.updater(game, queen->xPos - 1, queen->yPos - 1, -1, -1, false);
             propagator.updater(game, queen->xPos - 1, queen->yPos + 1, -1,  1, false);
@@ -160,12 +177,12 @@ namespace PiecePropagators {
             propagator.updater(game, newX + 1, newY - 1,  1, -1, true);
             propagator.updater(game, newX + 1, newY + 1,  1,  1, true);
         } else {
-            bishopUpdater(game, queen, newX, newY);
+            bishopUpdater(game, queen, newX, newY, captured);
             // Remove old vertical and horizontal threats
             propagator.updater(game, queen->xPos, queen->yPos - 1, 0, -1, false);
             propagator.updater(game, queen->xPos, queen->yPos + 1, 0,  1, false);
-            propagator.updater(game, queen->xPos + 1, queen->yPos - 1,  1, 0, false);
-            propagator.updater(game, queen->xPos - 1, queen->yPos + 1, -1, 0, false);
+            propagator.updater(game, queen->xPos + 1, queen->yPos,  1, 0, false);
+            propagator.updater(game, queen->xPos - 1, queen->yPos, -1, 0, false);
 
             // Add new vertical and horizontal threats
             propagator.updater(game, newX, newY - 1, 0, -1, true);
@@ -204,10 +221,6 @@ namespace PiecePropagators {
                 game.removeThreat(king, oldX - 1, oldY - yDir);
             }
         }
-
-        // Where it moves is no longer a threat, where it is was
-        game.removeThreat(king, newX, newY);
-        game.addThreat(king, oldX, oldY);
     }
 
     void pawnUpdater(Game& game, Piece* pawn, int newX, int newY) {
