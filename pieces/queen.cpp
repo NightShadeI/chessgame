@@ -2,6 +2,7 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -54,4 +55,12 @@ std::vector<Move*> Queen::getMoves(Game& game) {
         }
     }
     return moves;
+}
+
+void Queen::setup(Game& game) {
+    PiecePropagators::queenSetup(game, this);
+}
+
+void Queen::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::queenUpdater(game, this, newX, newY);
 }

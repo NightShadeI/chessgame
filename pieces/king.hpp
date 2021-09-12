@@ -10,6 +10,8 @@ class King : public Piece {
         bool isValidMove(Game& game, int newX, int newY) override;
         std::vector<Move*> getMoves(Game& game) override;
         int getPieceValue() override;
+        void setup(Game& game) override;
+        void updateThreats(Game& game, int newX, int newY) override;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "board.hpp"
 #include "threatTile.hpp"
+#include "pieces/piece.hpp"
 #include <iostream>
 
 using namespace std;
@@ -21,7 +22,8 @@ void Board::render(RenderWindow& window, Game& game) {
             chessTile.setPosition(Board::tileSize * c, Board::tileSize * r);
             window.draw(chessTile);
             ThreatTile* tile = game.threatMap[r][c];
-            if (tile->whiteCount > 0) {
+            Piece* pieceAt = game.getPieceAt(c, r);
+            if ((!pieceAt || pieceAt->type == -1) && tile->whiteCount > 0) {
                 threatCircle.setFillColor(Color(255, 0, 0, 100));
                 threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
                 window.draw(threatCircle);

@@ -1,6 +1,6 @@
 #include "piecePropagators.hpp"
 #include "propagator.hpp"
-
+#include <iostream>
 namespace PiecePropagators {
 
     void knightSetup(Game& game, Piece* knight, bool destructure) {
@@ -131,15 +131,15 @@ namespace PiecePropagators {
     void rookUpdater(Game& game, Piece* rook, int newX, int newY) {
         Propagator propagator(rook, nullptr);
         if (rook->xPos == newX) {
-            propagator.updater(game, rook->xPos, rook->yPos - 1, 0, -1, false);
-            propagator.updater(game, rook->xPos, rook->yPos + 1, 0,  1, false);
-            propagator.updater(game, newX, newY - 1, 0, -1, true);
-            propagator.updater(game, newX, newY + 1, 0,  1, true);
-        } else {
-            propagator.updater(game, rook->xPos + 1, rook->yPos,  1, 0, false);
-            propagator.updater(game, rook->xPos - 1, rook->yPos, -1, 0, false);
-            propagator.updater(game, newX + 1, newY,  1, 0, true);
+            propagator.updater(game, rook->xPos - 1, rook->yPos, -1,  0, false);
+            propagator.updater(game, rook->xPos + 1, rook->yPos,  1,  0, false);
             propagator.updater(game, newX - 1, newY, -1, 0, true);
+            propagator.updater(game, newX + 1, newY,  1, 0, true);
+        } else {
+            propagator.updater(game, rook->xPos, rook->yPos + 1,  0,  1, false);
+            propagator.updater(game, rook->xPos, rook->yPos - 1,  0, -1, false);
+            propagator.updater(game, newX, newY + 1,  0,  1, true);
+            propagator.updater(game, newX, newY - 1,  0, -1, true);
         }
     }
 
@@ -170,36 +170,44 @@ namespace PiecePropagators {
             // Add new vertical and horizontal threats
             propagator.updater(game, newX, newY - 1, 0, -1, true);
             propagator.updater(game, newX, newY + 1, 0,  1, true);
-            propagator.updater(game, newX + 1, newY - 1,  1, 0, true);
-            propagator.updater(game, newX - 1, newY + 1, -1, 0, true);
+            propagator.updater(game, newX + 1, newY,  1, 0, true);
+            propagator.updater(game, newX - 1, newY, -1, 0, true);
         }
     }
 
     void kingUpdater(Game& game, Piece* king, int newX, int newY) {
-        int xDir = newX - king->xPos;
-        int yDir = newY - king->yPos;
+        int oldX = king->xPos;
+        int oldY = king->yPos;
+        int xDir = newX - oldX;
+        int yDir = newY - oldY;
 
         if (xDir) {
             game.addThreat(king, newX + xDir, newY - 1);
             game.addThreat(king, newX + xDir, newY);
             game.addThreat(king, newX + xDir, newY + 1);
-            game.removeThreat(king, king->xPos - xDir, newY - 1);
-            game.removeThreat(king, king->xPos - xDir, newY);
-            game.removeThreat(king, king->xPos - xDir, newY + 1);
+            game.removeThreat(king, oldX - xDir, oldY - 1);
+            game.removeThreat(king, oldX - xDir, oldY);
+            game.removeThreat(king, oldX - xDir, oldY + 1);
         }
 
         if (yDir) {
-            game.addThreat(king, newX - 1, newY + yDir);
+            // We might not have to add or remove threats again if they already 
+            // have been done above (adding or removing overlapping threats)
+            if (xDir != -1) {
+                game.addThreat(king, newX - 1, newY + yDir);
+                game.removeThreat(king, oldX + 1, oldY - yDir);
+            }
             game.addThreat(king, newX, newY + yDir);
-            game.addThreat(king, newX + 1, newY + yDir);
-            game.removeThreat(king, newX - 1, newY - yDir);
-            game.removeThreat(king, newX, newY - yDir);
-            game.removeThreat(king, newX + 1, newY - yDir);
+            game.removeThreat(king, oldX, oldY - yDir);
+            if (xDir !=  1) {
+                game.addThreat(king, newX + 1, newY + yDir);
+                game.removeThreat(king, oldX - 1, oldY - yDir);
+            }
         }
 
-        // Where it moves is no longer a threat, where it was is
+        // Where it moves is no longer a threat, where it is was
         game.removeThreat(king, newX, newY);
-        game.addThreat(king, king->xPos, king->yPos);
+        game.addThreat(king, oldX, oldY);
     }
 
     void pawnUpdater(Game& game, Piece* pawn, int newX, int newY) {

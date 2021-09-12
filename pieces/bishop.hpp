@@ -11,6 +11,8 @@ class Bishop : public Piece {
         bool isValidMove(Game& game, int newX, int newY) override;
         int getPieceValue() override;
         std::vector<Move*> getMoves(Game& game) override;
+        void setup(Game& game) override;
+        void updateThreats(Game& game, int newX, int newY) override;
 };
 
 #endif

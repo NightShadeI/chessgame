@@ -2,6 +2,7 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <vector>
 #include <utility>
@@ -52,4 +53,12 @@ std::vector<Move*> Bishop::getMoves(Game& game) {
         }
     }
     return moves;
+}
+
+void Bishop::setup(Game& game) {
+    PiecePropagators::bishopSetup(game, this);
+}
+
+void Bishop::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::bishopUpdater(game, this, newX, newY);
 }

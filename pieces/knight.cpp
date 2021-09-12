@@ -2,6 +2,7 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 
 Knight::Knight(int x, int y, int ty) : Piece(x, y, ty) {
@@ -48,4 +49,12 @@ std::vector<Move*> Knight::getMoves(Game& game) {
         }
     }
     return moves;
+}
+
+void Knight::setup(Game& game) {
+    PiecePropagators::knightSetup(game, this);
+}
+
+void Knight::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::knightUpdater(game, this, newX, newY);
 }

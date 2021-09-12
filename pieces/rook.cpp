@@ -2,6 +2,7 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 
 
@@ -45,4 +46,12 @@ std::vector<Move*> Rook::getMoves(Game& game) {
         }
     }
     return moves;
+}
+
+void Rook::setup(Game& game) {
+    PiecePropagators::rookSetup(game, this);
+}
+
+void Rook::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::rookUpdater(game, this, newX, newY);
 }

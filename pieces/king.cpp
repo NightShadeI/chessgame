@@ -2,6 +2,7 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
+#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <cmath>
 
@@ -49,4 +50,12 @@ std::vector<Move*> King::getMoves(Game& game) {
         }
     }
     return moves;
+}
+
+void King::setup(Game& game) {
+    PiecePropagators::kingSetup(game, this);
+}
+
+void King::updateThreats(Game& game, int newX, int newY) {
+    PiecePropagators::kingUpdater(game, this, newX, newY);
 }
