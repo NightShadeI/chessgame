@@ -40,18 +40,22 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
             delete prop;
         }
         updateThreats(game, xMove, yMove, move.captured);
-        for (Piece* p : tileTo->threatening) {
-            string pieceName = p->getPieceName();
-            // We should not update ourselves
-            if (p == this) continue;
-            // We can skip any of these pieces, they do not update
-            if (pieceName == "King") continue;
-            if (pieceName == "Pawn") continue;
-            if (pieceName == "Knight") continue;
-            Propagator* prop = Propagator::fetchPropagator(p, &move, false);
-            prop->closePropagation(game);
-            delete prop;
+        // If a piece was captured, threatened squares cant possibly change!
+        if (!move.captured) {
+            for (Piece* p : tileTo->threatening) {
+                string pieceName = p->getPieceName();
+                // We should not update ourselves
+                if (p == this) continue;
+                // We can skip any of these pieces, they do not update
+                if (pieceName == "King") continue;
+                if (pieceName == "Pawn") continue;
+                if (pieceName == "Knight") continue;
+                Propagator* prop = Propagator::fetchPropagator(p, &move, false);
+                prop->closePropagation(game);
+                delete prop;
+            }
         }
+        
     }
     xPos = xMove; 
     yPos = yMove;
@@ -151,6 +155,8 @@ bool Piece::isValidMove(Game& game, int newX, int newY) {
 void Piece::setup(Game& game) {
 }
 
-void Piece::updateThreats(Game& game, int newX, int newY, Piece* captured) {
+void Piece::cleanThreats(Game& game) {
+}
 
+void Piece::updateThreats(Game& game, int newX, int newY, Piece* captured) {
 }

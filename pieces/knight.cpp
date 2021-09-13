@@ -55,6 +55,10 @@ void Knight::setup(Game& game) {
     PiecePropagators::knightSetup(game, this);
 }
 
+void Knight::cleanThreats(Game& game) {
+    PiecePropagators::knightSetup(game, this, true);
+}
+
 void Knight::updateThreats(Game& game, int newX, int newY, Piece* captured) {
     PiecePropagators::knightUpdater(game, this, newX, newY);
 }

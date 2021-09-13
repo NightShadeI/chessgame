@@ -29,15 +29,18 @@ void Game::addThreat(Piece* attackingPiece, int xPos, int yPos) {
     }
 }
 
-void Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
-    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return;
+bool Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
+    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return false;
     ThreatTile* tile = threatMap[yPos][xPos];
-    tile->threatening.erase(oldAttacker);
+    size_t piecesRemoved = tile->threatening.erase(oldAttacker);
+    // If the piece did not exist, return false to indicate no removal
+    if (piecesRemoved == 0) return false;
     if (oldAttacker->type == 1) {
         tile->whiteCount--;
     } else {
         tile->blackCount--;
     }
+    return true;
 }
 
 void Game::constructBoard() {
@@ -80,6 +83,7 @@ void Game::movePiece(Piece* p, int newX, int newY) {
     }
     if (toCapture) {
         pieces.erase(toCapture);
+        toCapture->cleanThreats(*this);
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
     }
@@ -103,7 +107,7 @@ void Game::movePiece(Piece* p, int newX, int newY) {
         setupPiece(queen);
         queen->setup(*this);
         gameScore -= 80 * pieceType;
-    }  
+    }
 }
 
 void Game::undoMove() {
@@ -115,13 +119,7 @@ void Game::undoMove() {
     Piece* captured = moveTaken->captured;
     Piece* undoPiece = board[moveTaken->yTo][moveTaken->xTo];
     int pieceType = movedPiece->type;
-    // This implies promotion
-    if (movedPiece != undoPiece) {
-        pieces.erase(undoPiece);
-        delete undoPiece;
-        pieces.insert(movedPiece);
-        gameScore += 80 * pieceType;
-    }
+    bool isPromotion = movedPiece != undoPiece;
     if (movedPiece->getPieceName() != "King") {
         gameScore += KING_CLOSE_WEIGHT * (moveTaken->yFrom - moveTaken->yTo);
     }
@@ -136,6 +134,12 @@ void Game::undoMove() {
     currentTurn = -currentTurn;
     movedPiece->doMove(*this, *moveTaken, true);
     delete moveTaken;
+    if (isPromotion) {
+        pieces.erase(undoPiece);
+        delete undoPiece;
+        pieces.insert(movedPiece);
+        gameScore += 80 * pieceType;
+    }
 }
 
 vector<Move*> Game::getPossibleMoves() {

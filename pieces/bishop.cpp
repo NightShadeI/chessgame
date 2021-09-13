@@ -57,6 +57,12 @@ std::vector<Move*> Bishop::getMoves(Game& game) {
 
 void Bishop::setup(Game& game) {
     PiecePropagators::bishopSetup(game, this);
+    game.addThreat(this, xPos, yPos);
+}
+
+void Bishop::cleanThreats(Game& game) {
+    PiecePropagators::bishopSetup(game, this, true);
+    game.removeThreat(this, xPos, yPos);
 }
 
 void Bishop::updateThreats(Game& game, int newX, int newY, Piece* captured) {

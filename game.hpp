@@ -25,7 +25,7 @@ class Game {
         unordered_set<Piece*> pieces;
         void setupPiece(Piece* newPiece);
         void addThreat(Piece* attackingPiece, int xPos, int yPos);
-        void removeThreat(Piece* oldAttacker, int xPos, int yPos);
+        bool removeThreat(Piece* oldAttacker, int xPos, int yPos);
         int distanceToEnemyKing(Piece* p);
         Piece* getPieceAt(int boardX, int boardY);
         void movePiece(Piece* p, int newX, int newY);

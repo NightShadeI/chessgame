@@ -5,7 +5,6 @@
 #include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <cmath>
-#include <iostream>
 
 Queen::Queen(int x, int y, int ty) : Piece(x, y, ty) {
 }
@@ -59,6 +58,12 @@ std::vector<Move*> Queen::getMoves(Game& game) {
 
 void Queen::setup(Game& game) {
     PiecePropagators::queenSetup(game, this);
+    game.addThreat(this, xPos, yPos);
+}
+
+void Queen::cleanThreats(Game& game) {
+    PiecePropagators::queenSetup(game, this, true);
+    game.removeThreat(this, xPos, yPos);
 }
 
 void Queen::updateThreats(Game& game, int newX, int newY, Piece* captured) {

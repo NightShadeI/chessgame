@@ -50,6 +50,12 @@ std::vector<Move*> Rook::getMoves(Game& game) {
 
 void Rook::setup(Game& game) {
     PiecePropagators::rookSetup(game, this);
+    game.addThreat(this, xPos, yPos);
+}
+
+void Rook::cleanThreats(Game& game) {
+    PiecePropagators::rookSetup(game, this, true);
+    game.removeThreat(this, xPos, yPos);
 }
 
 void Rook::updateThreats(Game& game, int newX, int newY, Piece* captured) {

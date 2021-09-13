@@ -36,7 +36,6 @@ namespace PiecePropagators {
         for (auto& p: dirs) {
             propagator.updater(game, bishop->xPos + p.first, bishop->yPos + p.second,  p.first, p.second, !destructure);
         }
-        game.addThreat(bishop, bishop->xPos, bishop->yPos);
     }
 
     void rookSetup(Game& game, Piece* rook, bool destructure) {
@@ -50,15 +49,12 @@ namespace PiecePropagators {
         for (auto& p: dirs) {
             propagator.updater(game, rook->xPos + p.first, rook->yPos + p.second, p.first, p.second, !destructure);
         }
-        game.addThreat(rook, rook->xPos, rook->yPos);
     }
 
     void queenSetup(Game& game, Piece* queen, bool destructure) {
         // A queen is just really a combination of a rook and a bishop
         rookSetup(game, queen, destructure);
         bishopSetup(game, queen, destructure);
-        // its own attack square was added twice, so remove 1
-        game.removeThreat(queen, queen->xPos, queen->yPos);
     }
 
     void kingSetup(Game& game, Piece* king, bool destructure) {
@@ -164,26 +160,28 @@ namespace PiecePropagators {
         Propagator propagator(queen, nullptr);
         // Check if the queen did a rook or bishop move
         if (queen->xPos == newX || queen->yPos == newY) {
-            rookUpdater(game, queen, newX, newY, captured);
             // Remove old diagonal threats
             propagator.updater(game, queen->xPos - 1, queen->yPos - 1, -1, -1, false);
             propagator.updater(game, queen->xPos - 1, queen->yPos + 1, -1,  1, false);
             propagator.updater(game, queen->xPos + 1, queen->yPos - 1,  1, -1, false);
             propagator.updater(game, queen->xPos + 1, queen->yPos + 1,  1,  1, false);
 
+            rookUpdater(game, queen, newX, newY, captured);
+            
             // Add new diagonal threats
             propagator.updater(game, newX - 1, newY - 1, -1, -1, true);
             propagator.updater(game, newX - 1, newY + 1, -1,  1, true);
             propagator.updater(game, newX + 1, newY - 1,  1, -1, true);
             propagator.updater(game, newX + 1, newY + 1,  1,  1, true);
         } else {
-            bishopUpdater(game, queen, newX, newY, captured);
             // Remove old vertical and horizontal threats
             propagator.updater(game, queen->xPos, queen->yPos - 1, 0, -1, false);
             propagator.updater(game, queen->xPos, queen->yPos + 1, 0,  1, false);
             propagator.updater(game, queen->xPos + 1, queen->yPos,  1, 0, false);
             propagator.updater(game, queen->xPos - 1, queen->yPos, -1, 0, false);
-
+            
+            bishopUpdater(game, queen, newX, newY, captured);
+            
             // Add new vertical and horizontal threats
             propagator.updater(game, newX, newY - 1, 0, -1, true);
             propagator.updater(game, newX, newY + 1, 0,  1, true);

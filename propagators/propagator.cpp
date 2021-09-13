@@ -23,7 +23,8 @@ void Propagator::updater(Game& game, int xStart, int yStart, int xDir, int yDir,
         if (threaten) {
             game.addThreat(rootPiece, curX, curY);
         } else {
-            game.removeThreat(rootPiece, curX, curY);
+            // if no piece is removed then false is returned
+            if (!game.removeThreat(rootPiece, curX, curY)) return;
         }
         // Piece blocks the way so we stop the propergation
         if (game.getPieceAt(curX, curY)) return;

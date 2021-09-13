@@ -54,6 +54,12 @@ std::vector<Move*> King::getMoves(Game& game) {
 
 void King::setup(Game& game) {
     PiecePropagators::kingSetup(game, this);
+    game.addThreat(this, xPos, yPos);
+}
+
+void King::cleanThreats(Game& game) {
+    PiecePropagators::kingSetup(game, this, true);
+    game.removeThreat(this, xPos, yPos);
 }
 
 void King::updateThreats(Game& game, int newX, int newY, Piece* captured) {

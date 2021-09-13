@@ -12,6 +12,7 @@ class Pawn : public Piece {
         std::vector<Move*> getMoves(Game& game) override;
         int getPieceValue() override;
         void setup(Game& game) override;
+        void cleanThreats(Game& game) override;
         void updateThreats(Game& game, int newX, int newY, Piece* captured) override;
     private:
         inline Move* generateMove(Game& game, int newX, int newY);
