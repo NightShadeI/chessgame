@@ -123,10 +123,18 @@ void Game::undoMove() {
     if (movedPiece->getPieceName() != "King") {
         gameScore += KING_CLOSE_WEIGHT * (moveTaken->yFrom - moveTaken->yTo);
     }
+    if (isPromotion) {
+        pieces.erase(undoPiece);
+        undoPiece->cleanThreats(*this);
+        delete undoPiece;
+        pieces.insert(movedPiece);
+        gameScore += 80 * pieceType;
+    }
     board[moveTaken->yFrom][moveTaken->xFrom] = movedPiece;
     board[moveTaken->yTo][moveTaken->xTo] = captured;
     if (captured) {
         pieces.insert(captured);
+        captured->setup(*this);
         gameScore -= captured->getPieceValue() * -pieceType;
         gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
     }
@@ -134,12 +142,6 @@ void Game::undoMove() {
     currentTurn = -currentTurn;
     movedPiece->doMove(*this, *moveTaken, true);
     delete moveTaken;
-    if (isPromotion) {
-        pieces.erase(undoPiece);
-        delete undoPiece;
-        pieces.insert(movedPiece);
-        gameScore += 80 * pieceType;
-    }
 }
 
 vector<Move*> Game::getPossibleMoves() {

@@ -127,9 +127,16 @@ namespace PiecePropagators {
             propagator.updater(game, newX - 1, newY - 1, -1,  -1, true);
         }
         if (captured) {
-            int xDir = xDiff > 0 ? 1 : -1;
-            int yDir = yDiff > 0 ? 1 : -1;
-            propagator.updater(game, newX + xDir, newY + yDir, xDir, yDir, true);
+            // Implies that we are undoing the piece, if the coordinates currently match
+            if (bishop->xPos == captured->xPos && bishop->yPos == captured->yPos) {
+                int xDir = xDiff > 0 ? -1 : 1;
+                int yDir = yDiff > 0 ? -1 : 1;
+                propagator.updater(game, bishop->xPos + xDir, bishop->yPos + yDir, xDir, yDir, false);
+            } else {
+                int xDir = xDiff > 0 ? 1 : -1;
+                int yDir = yDiff > 0 ? 1 : -1;
+                propagator.updater(game, newX + xDir, newY + yDir, xDir, yDir, true);
+            }
         }
     }
 
@@ -141,8 +148,15 @@ namespace PiecePropagators {
             propagator.updater(game, newX - 1, newY, -1, 0, true);
             propagator.updater(game, newX + 1, newY,  1, 0, true);
             if (captured) {
-                int yDir = (newY - rook->yPos) > 0 ? 1 : -1;
-                propagator.updater(game, newX, newY + yDir, 0, yDir, true);
+                // Implies that we are undoing the piece, if the coordinates currently match
+                if (rook->yPos == captured->yPos) {
+                    int yDir = (newY - rook->yPos) > 0 ? -1 : 1;
+                    propagator.updater(game, rook->xPos, rook->yPos + yDir, 0, yDir, false);
+                } else {
+                    int yDir = (newY - rook->yPos) > 0 ? 1 : -1;
+                    propagator.updater(game, newX, newY + yDir, 0, yDir, true);
+
+                }
             }
         } else {
             propagator.updater(game, rook->xPos, rook->yPos + 1,  0,  1, false);
@@ -150,8 +164,14 @@ namespace PiecePropagators {
             propagator.updater(game, newX, newY + 1,  0,  1, true);
             propagator.updater(game, newX, newY - 1,  0, -1, true);
             if (captured) {
-                int xDir = (newX - rook->xPos) > 0 ? 1 : -1;
-                propagator.updater(game, newX + xDir, newY, xDir, 0, true);
+                // Implies that we are undoing the piece, if the coordinates currently match
+                if (rook->xPos == captured->xPos) {
+                    int xDir = (newX - rook->xPos) > 0 ? -1 : 1;
+                    propagator.updater(game, rook->xPos + xDir, rook->yPos, xDir, 0, false);
+                } else {
+                    int xDir = (newX - rook->xPos) > 0 ? 1 : -1;
+                    propagator.updater(game, newX + xDir, newY, xDir, 0, true);
+                }
             }
         }
     }

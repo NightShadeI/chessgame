@@ -22,7 +22,7 @@ void Board::render(RenderWindow& window, Game& game) {
             window.draw(chessTile);
             ThreatTile* tile = game.threatMap[r][c];
             Piece* pieceAt = game.getPieceAt(c, r);
-            if ((!pieceAt || pieceAt->type == -1) && tile->whiteCount > 0) {
+            if ((!pieceAt || pieceAt->type == 1) && tile->blackCount > 0) {
                 threatCircle.setFillColor(Color(255, 0, 0, 100));
                 threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
                 window.draw(threatCircle);

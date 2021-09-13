@@ -1,3 +1,7 @@
+#include <vector>
+#include <unordered_set>
+#include <string>
+
 #include "piece.hpp"
 #include "../game.hpp"
 #include "../board.hpp"
@@ -5,9 +9,6 @@
 #include "../board.hpp"
 #include "../threatTile.hpp"
 #include "../propagators/propagator.hpp"
-#include <vector>
-#include <unordered_set>
-#include <string>
 
 Piece::Piece(int x, int y, int ty) {
     xPos = x;
@@ -22,11 +23,14 @@ void Piece::loadTexture() {
 }
 
 void Piece::doMove(Game& game, Move& move, bool undo) {
-    int xMove = undo ? move.xFrom : move.xTo;
-    int yMove = undo ? move.yFrom : move.yTo;
-    if (!undo) {
-        ThreatTile* tileFrom = game.threatMap[yPos][xPos];
-        ThreatTile* tileTo = game.threatMap[yMove][xMove];
+    // The move is in reverse if we are undoing a move!
+    if (undo) {
+        swap(move.xTo, move.xFrom);
+        swap(move.yTo, move.yFrom);
+    }
+    ThreatTile* tileFrom = game.threatMap[yPos][xPos];
+    ThreatTile* tileTo = game.threatMap[move.yTo][move.xTo];
+    if (!undo || !move.captured) {
         for (Piece* p : tileFrom->threatening) {
             string pieceName = p->getPieceName();
             // We should not update ourselves
@@ -39,26 +43,25 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
             prop->openPropagation(game);
             delete prop;
         }
-        updateThreats(game, xMove, yMove, move.captured);
-        // If a piece was captured, threatened squares cant possibly change!
-        if (!move.captured) {
-            for (Piece* p : tileTo->threatening) {
-                string pieceName = p->getPieceName();
-                // We should not update ourselves
-                if (p == this) continue;
-                // We can skip any of these pieces, they do not update
-                if (pieceName == "King") continue;
-                if (pieceName == "Pawn") continue;
-                if (pieceName == "Knight") continue;
-                Propagator* prop = Propagator::fetchPropagator(p, &move, false);
-                prop->closePropagation(game);
-                delete prop;
-            }
-        }
-        
     }
-    xPos = xMove; 
-    yPos = yMove;
+    updateThreats(game, move.xTo, move.yTo, move.captured);
+    // If a piece was captured, threatened squares cant possibly change!
+    if (undo || !move.captured) {
+        for (Piece* p : tileTo->threatening) {
+            string pieceName = p->getPieceName();
+            // We should not update ourselves
+            if (p == this) continue;
+            // We can skip any of these pieces, they do not update
+            if (pieceName == "King") continue;
+            if (pieceName == "Pawn") continue;
+            if (pieceName == "Knight") continue;
+            Propagator* prop = Propagator::fetchPropagator(p, &move, false);
+            prop->closePropagation(game);
+            delete prop;
+        }
+    }
+    xPos = move.xTo;
+    yPos = move.yTo;
     dragOffsetX = 0;
     dragOffsetY = 0;
 }
