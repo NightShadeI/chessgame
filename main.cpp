@@ -72,7 +72,7 @@ int main() {
             if (selectedPiece && event.type == Event::MouseButtonReleased) {
                 int boardX = mousePos.x / Board::tileSize;
                 int boardY = mousePos.y / Board::tileSize;
-                if (selectedPiece->canDoMove(game, boardX, boardY)) {
+                if (selectedPiece->vigorousCanDoMove(game, boardX, boardY)) {
                     game.movePiece(selectedPiece, boardX, boardY);
                 } else {
                     selectedPiece->setDrag(0, 0);

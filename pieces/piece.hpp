@@ -21,6 +21,7 @@ class Piece {
         virtual std::vector<Move*> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
         bool canDoMove(Game& game, int newX, int newY);
+        bool vigorousCanDoMove(Game& game, int newX, int newY);
         virtual bool isValidMove(Game& game, int newX, int newY);
         virtual std::string getPieceName();
         virtual bool isSlidingPiece();

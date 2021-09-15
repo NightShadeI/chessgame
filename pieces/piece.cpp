@@ -258,8 +258,14 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
     // If we get here we KNOW we aren't pinned, this piece is free to move anywhere provided we aren't in check
     // This is the very final validation
     if (numAttackingKing == 1) return doesBlock;
+
     return true;
-    
+}
+
+/*
+* This function is more for humans and determing if their move is valid
+*/
+bool Piece::vigorousCanDoMove(Game& game, int newX, int newY) {
     // Check the move is inside the the board
     if ((unsigned)newX >= Board::width || (unsigned)newY >= Board::height) return false;
 
@@ -291,6 +297,7 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
     Piece* targetPiece = game.getPieceAt(newX, newY);
     if (targetPiece && targetPiece->type == type) return false;
 
+    // Check if the king can be captured the old way, incase threatmap is disabled
     game.movePiece(this, newX, newY);
     vector<Move*> replies = game.getPossibleMoves();
     game.undoMove();
@@ -302,7 +309,6 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
         }
         delete m;
     }
-
     return !kingCapturable;
 }
 
