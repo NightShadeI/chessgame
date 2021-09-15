@@ -21,6 +21,10 @@ int Queen::getPieceValue() {
     return 90;
 }
 
+bool Queen::isSlidingPiece() {
+    return true;
+}
+
 bool Queen::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

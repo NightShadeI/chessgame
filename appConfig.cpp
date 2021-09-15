@@ -55,6 +55,13 @@ void setupBoard(Game& game, string& FENstring) {
         } else {
             Piece* generatedPiece = generatePiece(c, gameCol, gameRow);
             game.setupPiece(generatedPiece);
+            if (generatedPiece->getPieceName() == "King") {
+                if (generatedPiece->type == 1) {
+                    game.whiteKing = generatedPiece;
+                } else {
+                    game.blackKing = generatedPiece;
+                }
+            }
             gameCol++;
         }
     }

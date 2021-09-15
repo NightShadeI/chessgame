@@ -10,6 +10,7 @@ class Bishop : public Piece {
         int getXTranslation() override;
         bool isValidMove(Game& game, int newX, int newY) override;
         int getPieceValue() override;
+        bool isSlidingPiece() override;
         std::vector<Move*> getMoves(Game& game) override;
         void setup(Game& game) override;
         void cleanThreats(Game& game) override;

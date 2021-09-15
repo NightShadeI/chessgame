@@ -24,6 +24,10 @@ int Bishop::getPieceValue() {
     return 30;
 }
 
+bool Bishop::isSlidingPiece() {
+    return true;
+}
+
 bool Bishop::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

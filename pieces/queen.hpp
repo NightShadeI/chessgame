@@ -11,6 +11,7 @@ class Queen : public Piece {
         bool isValidMove(Game& game, int newX, int newY) override;
         std::vector<Move*> getMoves(Game& game) override;
         int getPieceValue() override;
+        bool isSlidingPiece() override;
         void setup(Game& game) override;
         void cleanThreats(Game& game) override;
         void updateThreats(Game& game, int newX, int newY, Piece* captured) override;

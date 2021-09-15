@@ -17,6 +17,10 @@ int Rook::getPieceValue() {
     return 50;
 }
 
+bool Rook::isSlidingPiece() {
+    return true;
+}
+
 bool Rook::isValidMove(Game& game, int newX, int newY) {
     int xDiff = newX - xPos;
     int yDiff = newY - yPos;

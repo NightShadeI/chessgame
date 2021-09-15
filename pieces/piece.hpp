@@ -23,6 +23,7 @@ class Piece {
         bool canDoMove(Game& game, int newX, int newY);
         virtual bool isValidMove(Game& game, int newX, int newY);
         virtual std::string getPieceName();
+        virtual bool isSlidingPiece();
         virtual int getPieceValue();
         virtual int getXTranslation();
         virtual void setup(Game& game);
