@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "threatTile.hpp"
 #include "pieces/piece.hpp"
+#include "move.hpp"
 
 using namespace std;
 using namespace sf;
@@ -11,7 +12,10 @@ const int Board::tileSize = 80;
 
 void Board::render(RenderWindow& window, Game& game) {
     RectangleShape chessTile;
+    RectangleShape lastMoveTile;
     CircleShape threatCircle;
+    lastMoveTile.setFillColor(Color(198, 147, 202));
+    lastMoveTile.setSize(Vector2f(Board::tileSize, Board::tileSize));
     chessTile.setSize(Vector2f(Board::tileSize, Board::tileSize));
     threatCircle.setRadius(30);
     for (int r = 0; r < Board::height; r++) {
@@ -28,5 +32,12 @@ void Board::render(RenderWindow& window, Game& game) {
             //     window.draw(threatCircle);
             // }
         }
+    }
+    if (game.moveHistory.size()) {
+        Move* lastMove = game.moveHistory[game.moveHistory.size() - 1];
+        lastMoveTile.setPosition(Board::tileSize * lastMove->xFrom, Board::tileSize * lastMove->yFrom);
+        window.draw(lastMoveTile);
+        lastMoveTile.setPosition(Board::tileSize * lastMove->xTo, Board::tileSize * lastMove->yTo);
+        window.draw(lastMoveTile);
     }
 }
