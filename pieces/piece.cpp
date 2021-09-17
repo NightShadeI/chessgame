@@ -28,38 +28,41 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
         swap(move.xTo, move.xFrom);
         swap(move.yTo, move.yFrom);
     }
-    ThreatTile* tileFrom = game.threatMap[yPos][xPos];
-    ThreatTile* tileTo = game.threatMap[move.yTo][move.xTo];
-    if (!undo || !move.captured) {
-        for (Piece* p : tileFrom->threatening) {
-            string pieceName = p->getPieceName();
-            // We should not update ourselves
-            if (p == this) continue;
-            // We can skip any of these pieces, they do not update
-            if (pieceName == "King") continue;
-            if (pieceName == "Pawn") continue;
-            if (pieceName == "Knight") continue;
-            Propagator* prop = Propagator::fetchPropagator(p, &move, true);
-            prop->openPropagation(game);
-            delete prop;
+    if (game.useThreatMap) {
+        ThreatTile* tileFrom = game.threatMap[yPos][xPos];
+        ThreatTile* tileTo = game.threatMap[move.yTo][move.xTo];
+        if (!undo || !move.captured) {
+            for (Piece* p : tileFrom->threatening) {
+                string pieceName = p->getPieceName();
+                // We should not update ourselves
+                if (p == this) continue;
+                // We can skip any of these pieces, they do not update
+                if (pieceName == "King") continue;
+                if (pieceName == "Pawn") continue;
+                if (pieceName == "Knight") continue;
+                Propagator* prop = Propagator::fetchPropagator(p, &move, true);
+                prop->openPropagation(game);
+                delete prop;
+            }
+        }
+        updateThreats(game, move.xTo, move.yTo, move.captured);
+        // If a piece was captured, threatened squares cant possibly change!
+        if (undo || !move.captured) {
+            for (Piece* p : tileTo->threatening) {
+                string pieceName = p->getPieceName();
+                // We should not update ourselves
+                if (p == this) continue;
+                // We can skip any of these pieces, they do not update
+                if (pieceName == "King") continue;
+                if (pieceName == "Pawn") continue;
+                if (pieceName == "Knight") continue;
+                Propagator* prop = Propagator::fetchPropagator(p, &move, false);
+                prop->closePropagation(game);
+                delete prop;
+            }
         }
     }
-    updateThreats(game, move.xTo, move.yTo, move.captured);
-    // If a piece was captured, threatened squares cant possibly change!
-    if (undo || !move.captured) {
-        for (Piece* p : tileTo->threatening) {
-            string pieceName = p->getPieceName();
-            // We should not update ourselves
-            if (p == this) continue;
-            // We can skip any of these pieces, they do not update
-            if (pieceName == "King") continue;
-            if (pieceName == "Pawn") continue;
-            if (pieceName == "Knight") continue;
-            Propagator* prop = Propagator::fetchPropagator(p, &move, false);
-            prop->closePropagation(game);
-            delete prop;
-        }
-    }
+
     xPos = move.xTo;
     yPos = move.yTo;
     dragOffsetX = 0;

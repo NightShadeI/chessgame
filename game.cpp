@@ -43,6 +43,10 @@ bool Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
     return true;
 }
 
+void Game::toggleThreats() {
+    useThreatMap = !useThreatMap;
+}
+
 void Game::constructBoard() {
     const int BOARD_SIZE = 8;
     board.resize(BOARD_SIZE);
@@ -62,6 +66,7 @@ Game::Game() {
     totalMoves = 0;
     currentTurn = 1;
     gameScore = 0;
+    useThreatMap = false;
 }
 
 inline int getPieceStartRow(Piece* p) {
@@ -83,7 +88,9 @@ void Game::movePiece(Piece* p, int newX, int newY) {
     }
     if (toCapture) {
         pieces.erase(toCapture);
-        toCapture->cleanThreats(*this);
+        if (useThreatMap) {
+            toCapture->cleanThreats(*this);
+        }
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
     }
@@ -105,7 +112,9 @@ void Game::movePiece(Piece* p, int newX, int newY) {
         Queen* queen = new Queen(newX, newY, pieceType);
         pieces.erase(p);
         setupPiece(queen);
-        queen->setup(*this);
+        if (useThreatMap) {
+            queen->setup(*this);
+        }
         gameScore -= 80 * pieceType;
     }
 }
@@ -125,7 +134,9 @@ void Game::undoMove() {
     }
     if (isPromotion) {
         pieces.erase(undoPiece);
-        undoPiece->cleanThreats(*this);
+        if (useThreatMap) {
+            undoPiece->cleanThreats(*this);
+        }
         delete undoPiece;
         pieces.insert(movedPiece);
         gameScore += 80 * pieceType;
@@ -134,7 +145,9 @@ void Game::undoMove() {
     board[moveTaken->yTo][moveTaken->xTo] = captured;
     if (captured) {
         pieces.insert(captured);
-        captured->setup(*this);
+        if (useThreatMap) {
+            captured->setup(*this);
+        }
         gameScore -= captured->getPieceValue() * -pieceType;
         gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
     }
@@ -153,6 +166,19 @@ vector<Move*> Game::getPossibleMoves() {
     }
     return moves;
 } 
+
+vector<Move*> Game::getCaptures() {
+    vector<Move*> moves = getPossibleMoves();
+    vector<Move*> filteredMoves;
+    for (Move* m : moves) {
+        if (m->captured) {
+            filteredMoves.emplace_back(m);
+        } else {
+            delete m;
+        }
+    }
+    return filteredMoves;
+}
 
 vector<Move*> Game::getValidMoves() {
     vector<Move*> moves = getPossibleMoves();

@@ -32,6 +32,7 @@ int main() {
     BruteForceMover agent(N);
     BruteForceMover strongerAgent(N+1);
     BruteForceMover strongestAgent(N+2);
+    BruteForceMover deadlyAgent(N+3);
     
 
     Piece* selectedPiece = nullptr;
@@ -103,6 +104,10 @@ int main() {
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Y) {
                 strongestAgent.doMove(game);
+            }
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::U) {
+                deadlyAgent.doMove(game);
             }
 
             if (selectedPiece) {

@@ -15,6 +15,7 @@ class Game {
         int currentTurn;
         int totalMoves;
         int gameScore;
+        bool useThreatMap;
         static const int PAWN_WEIGHT;
         static const int KING_CLOSE_WEIGHT;
         Piece* whiteKing;
@@ -23,6 +24,7 @@ class Game {
         vector<vector<Piece*>> board;
         vector<vector<ThreatTile*>> threatMap;
         unordered_set<Piece*> pieces;
+        void toggleThreats();
         void setupPiece(Piece* newPiece);
         void addThreat(Piece* attackingPiece, int xPos, int yPos);
         bool removeThreat(Piece* oldAttacker, int xPos, int yPos);
@@ -31,6 +33,7 @@ class Game {
         void movePiece(Piece* p, int newX, int newY);
         void undoMove();
         vector<Move*> getPossibleMoves();
+        vector<Move*> getCaptures();
         vector<Move*> getValidMoves();
         float getGameScore();
     private:

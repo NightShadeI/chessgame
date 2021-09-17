@@ -80,8 +80,6 @@ void setupThreatMap(Game& game) {
         }
     }
     for (Piece* p : game.pieces) {
-        // temporarily call twice, for debugging
-        // p->setup(game);
         p->setup(game);
     }
 }

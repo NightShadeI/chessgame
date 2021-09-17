@@ -9,7 +9,8 @@ class BruteForceMover : public Agent {
         int depth;
         int movesExplored;
         Move* bestMove;
-        int bruteForce(Game& game, int mult, int alpha, int beta, int d = 0);
+        int quiescence(Game& game, int mult, int alpha, int beta, int d = 0);
+        int bruteForce(Game& game, int mult, int alpha, int beta, int d = 0, bool allowInvalid=true);
         Move& getMove(Game& game) override;
 };
 
