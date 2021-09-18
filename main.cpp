@@ -6,6 +6,7 @@
 #include "agents/randomMover.hpp"
 #include "agents/bruteForceMover.hpp"
 #include "agents/monteCarloMover.hpp"
+#include "appConfig.hpp"
 
 using namespace std;
 using namespace sf;
@@ -108,6 +109,11 @@ int main() {
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::U) {
                 deadlyAgent.doMove(game);
+            }
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::X) {
+                setupThreatMap(game);
+                game.toggleThreats();
             }
 
             if (selectedPiece) {

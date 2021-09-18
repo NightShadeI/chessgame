@@ -1,10 +1,11 @@
+#include <string>
+#include <cmath>
+
 #include "pawn.hpp"
 #include "../game.hpp"
 #include "../board.hpp"
 #include "../move.hpp"
 #include "../propagators/piecePropagators.hpp"
-#include <string>
-#include <cmath>
 
 Pawn::Pawn(int x, int y, int ty) : Piece(x, y, ty) {
 }

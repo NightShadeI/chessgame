@@ -170,6 +170,7 @@ vector<Move*> Game::getPossibleMoves() {
 vector<Move*> Game::getCaptures() {
     vector<Move*> moves = getPossibleMoves();
     vector<Move*> filteredMoves;
+    filteredMoves.reserve(moves.size());
     for (Move* m : moves) {
         if (m->captured) {
             filteredMoves.emplace_back(m);
@@ -183,6 +184,7 @@ vector<Move*> Game::getCaptures() {
 vector<Move*> Game::getValidMoves() {
     vector<Move*> moves = getPossibleMoves();
     vector<Move*> filteredMoves;
+    filteredMoves.reserve(moves.size());
     for (Move* m : moves) {
         if (m->moved->canDoMove(*this, m->xTo, m->yTo)) {
             filteredMoves.emplace_back(m);

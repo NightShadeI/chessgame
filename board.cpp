@@ -14,7 +14,7 @@ void Board::render(RenderWindow& window, Game& game) {
     RectangleShape chessTile;
     RectangleShape lastMoveTile;
     CircleShape threatCircle;
-    lastMoveTile.setFillColor(Color(198, 147, 202));
+    lastMoveTile.setFillColor(Color(198, 147, 202, 150));
     lastMoveTile.setSize(Vector2f(Board::tileSize, Board::tileSize));
     chessTile.setSize(Vector2f(Board::tileSize, Board::tileSize));
     threatCircle.setRadius(30);
@@ -24,13 +24,13 @@ void Board::render(RenderWindow& window, Game& game) {
             chessTile.setFillColor(tileColour);
             chessTile.setPosition(Board::tileSize * c, Board::tileSize * r);
             window.draw(chessTile);
-            // ThreatTile* tile = game.threatMap[r][c];
-            // Piece* pieceAt = game.getPieceAt(c, r);
-            // if ((!pieceAt || pieceAt->type == 1) && tile->blackCount > 0) {
-            //     threatCircle.setFillColor(Color(255, 0, 0, 100));
-            //     threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
-            //     window.draw(threatCircle);
-            // }
+            ThreatTile* tile = game.threatMap[r][c];
+            Piece* pieceAt = game.getPieceAt(c, r);
+            if (game.useThreatMap && (!pieceAt || pieceAt->type == 1) && tile->blackCount > 0) {
+                threatCircle.setFillColor(Color(255, 0, 0, 100));
+                threatCircle.setPosition(Board::tileSize * c + 10, Board::tileSize * r + 10);
+                window.draw(threatCircle);
+            }
         }
     }
     if (game.moveHistory.size()) {
