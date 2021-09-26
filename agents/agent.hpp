@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "../game.hpp"
 #include "../move.hpp"
 
@@ -7,7 +9,7 @@
 class Agent {
     public:
         Agent();
-        virtual Move& getMove(Game& game);
+        virtual unique_ptr<Move> getMove(Game& game);
         void doMove(Game& game);
 };
 

@@ -1,16 +1,20 @@
+#include <string>
+
 #include "rook.hpp"
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
 #include "../propagators/piecePropagators.hpp"
-#include <string>
-
 
 Rook::Rook(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
 std::string Rook::getPieceName() {
     return "Rook";
+}
+
+PieceName Rook::getPieceType() {
+    return PieceName::ROOK;
 }
 
 int Rook::getPieceValue() {
@@ -27,8 +31,8 @@ bool Rook::isValidMove(Game& game, int newX, int newY) {
     return xDiff * yDiff == 0;
 }
 
-std::vector<Move*> Rook::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> Rook::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
     const std::vector<std::pair<int, int>> dirs = {
         { 0,  1},
         { 1,  0},
@@ -40,12 +44,12 @@ std::vector<Move*> Rook::getMoves(Game& game) {
         while (curX += dir.first, curY += dir.second, (unsigned)curX < Board::width && (unsigned)curY < Board::height) {
             Piece* pieceAt = game.getPieceAt(curX, curY);
             if (pieceAt && pieceAt->type == type) break;
-            Move* move = new Move;
+            unique_ptr<Move> move = make_unique<Move>();
             move->moved = this;
             move->captured = game.getPieceAt(curX, curY);
             move->xTo = curX;
             move->yTo = curY;
-            moves.emplace_back(move);
+            moves.emplace_back(std::move(move));
             if (pieceAt) break;
         }
     }

@@ -7,12 +7,8 @@ RandomMover::RandomMover() {
     srand(time(NULL));
 }
 
-Move& RandomMover::getMove(Game& game) {
-    vector<Move*> moves = game.getValidMoves();
+unique_ptr<Move> RandomMover::getMove(Game& game) {
+    vector<unique_ptr<Move>> moves = game.getValidMoves();
     int randIdx = rand() % moves.size();
-    for (int i = 0; i < moves.size(); i++) {
-        if (i == randIdx) continue;
-        delete moves[i];
-    }
-    return *moves[randIdx];
+    return move(moves[randIdx]);
 }

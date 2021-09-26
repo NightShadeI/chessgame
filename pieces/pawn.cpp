@@ -14,6 +14,10 @@ std::string Pawn::getPieceName() {
     return "Pawn";
 }
 
+PieceName Pawn::getPieceType() {
+    return PieceName::PAWN;
+}
+
 int Pawn::getXTranslation() {
     return 14;
 }
@@ -39,8 +43,8 @@ bool Pawn::isValidMove(Game& game, int newX, int newY) {
     return xDiff == 0 || p;
 }
 
-inline Move* Pawn::generateMove(Game& game, int newX, int newY) {
-    Move* move = new Move;
+inline unique_ptr<Move> Pawn::generateMove(Game& game, int newX, int newY) {
+    unique_ptr<Move> move = make_unique<Move>();
     move->moved = this;
     move->captured = game.getPieceAt(newX, newY);
     move->xTo = newX;
@@ -48,8 +52,8 @@ inline Move* Pawn::generateMove(Game& game, int newX, int newY) {
     return move;
 }
 
-std::vector<Move*> Pawn::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> Pawn::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
 
     if (yPos == 0 || yPos == 7) return moves;
 

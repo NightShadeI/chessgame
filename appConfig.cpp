@@ -1,3 +1,5 @@
+#include <random>
+
 #include "appConfig.hpp"
 #include "pieces/piece.hpp"
 #include "pieces/pawn.hpp"
@@ -10,6 +12,7 @@
 #include "board.hpp"
 
 std::string DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+// std::string DEFAULT_FEN = "8/k7/3p4/p2P1p2/P2P1P2/8/8/K7";
 
 Piece* generatePiece(char FENchar, int x, int y) {
     int type = isupper(FENchar) ? 1 : -1;
@@ -55,7 +58,7 @@ void setupBoard(Game& game, string& FENstring) {
         } else {
             Piece* generatedPiece = generatePiece(c, gameCol, gameRow);
             game.setupPiece(generatedPiece);
-            if (generatedPiece->getPieceName() == "King") {
+            if (generatedPiece->getPieceType() == PieceName::KING) {
                 if (generatedPiece->type == 1) {
                     game.whiteKing = generatedPiece;
                 } else {
@@ -81,5 +84,16 @@ void setupThreatMap(Game& game) {
     }
     for (Piece* p : game.pieces) {
         p->setup(game);
+    }
+}
+
+void setupHashes(Game& game) {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<unsigned long long> distribution;
+    game.zobristHash = 0;
+    const size_t hashArrSize = sizeof(game.zobristValues)/sizeof(unsigned long long);
+    for (int i = 0; i < hashArrSize; i++) {
+        game.zobristValues[i] = distribution(generator);
     }
 }

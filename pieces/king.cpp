@@ -13,6 +13,10 @@ std::string King::getPieceName() {
     return "King";
 }
 
+PieceName King::getPieceType() {
+    return PieceName::KING;
+}
+
 int King::getPieceValue() {
     return 1000;
 }
@@ -23,8 +27,8 @@ bool King::isValidMove(Game& game, int newX, int newY) {
     return xDiff <= 1 && yDiff <= 1;
 }
 
-std::vector<Move*> King::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> King::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
     const std::vector<std::pair<int, int>> dirs = {
         {-1,  1},
         { 0,  1},
@@ -41,12 +45,12 @@ std::vector<Move*> King::getMoves(Game& game) {
         if ((unsigned)newX < Board::width && (unsigned)newY < Board::height) {
             Piece* pieceAt = game.getPieceAt(newX, newY);
             if (pieceAt && pieceAt->type == type) continue;
-            Move* move = new Move;
+            unique_ptr<Move> move = make_unique<Move>();
             move->moved = this;
             move->captured = game.getPieceAt(newX, newY);
             move->xTo = newX;
             move->yTo = newY;
-            moves.emplace_back(move);
+            moves.emplace_back(std::move(move));
         }
     }
     return moves;

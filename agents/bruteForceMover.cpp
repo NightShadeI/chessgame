@@ -1,7 +1,7 @@
 #include <vector>
-#include <iostream>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 #include "bruteForceMover.hpp"
 #include "../appConfig.hpp"
@@ -11,107 +11,217 @@ using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::chrono::milliseconds;
 
+static const int NEGATIVE_INF = -100000;
+static const int POSITIVE_INF =  100000;
+static const int MATE_SCORE   =  10000;
+static const int MAX_DEPTH    =  100;
+static const int MAX_SEARCH   =  1000;
+
 BruteForceMover::BruteForceMover(int d) {
     depth = d;
 }
 
-int BruteForceMover::movementScore(Move* m) {
+int BruteForceMover::movementScore(Move* m, Move* optimalMove) {
     Piece* movedPiece = m->moved;
+    if (
+        optimalMove &&
+        optimalMove->moved == movedPiece &&
+        optimalMove->xTo == optimalMove->xTo &&
+        optimalMove->yTo == optimalMove->yTo
+    ) return POSITIVE_INF;
     Piece* capturedPiece = m->captured;
     int pushScore = 10 * ((m->yTo - m->yFrom) * -movedPiece->type);
     if (capturedPiece) {
         return 10 * capturedPiece->getPieceValue() - movedPiece->getPieceValue() + pushScore;
     }
-    return pushScore;
+    return 0;
 }
 
-int BruteForceMover::quiescence(Game& game, int mult, int alpha, int beta, int d) {
-    movesExplored++;
+int BruteForceMover::quiescence(Game& game, int mult, int alpha, int beta, int d, int mateIn) {
+
+    // Terminal nodes
+    if (mateIn == 0) return 0;
     int nulMove = mult * game.getGameScore();
-    if (nulMove >= beta) return -nulMove;
-    vector<Move*> responses = game.getCaptures();
-    // Check-mate!
-    // We subtract d to prioritise checkmates in fewer moves
-    if (responses.size() == 0) return -nulMove;
-    std::sort(responses.begin(), responses.end(), [this](Move* a, Move* b) {
-        return movementScore(a) > movementScore(b);
+    if (nulMove >= beta) return nulMove;
+
+    // Generate and order the moves
+    vector<unique_ptr<Move>> responses = game.getCaptures();
+    if (responses.size() == 0) return nulMove;
+    std::sort(responses.begin(), responses.end(), [this](unique_ptr<Move>& a, unique_ptr<Move>& b) {
+        return movementScore(a.get(), nullptr) > movementScore(b.get(), nullptr);
     });
+
+    // Evaluate the moves
+    alpha = max(alpha, nulMove);
     int highestScore = nulMove;
-    alpha = max(alpha, highestScore);
-    for (Move* r : responses) {
-        game.movePiece(r->moved, r->xTo, r->yTo);
+    for (unique_ptr<Move>& r : responses) {
+        int seen = game.movePiece(r->moved, r->xTo, r->yTo);
         int movementScore;
-        if (r->captured->getPieceName() == "King") {
-            movementScore = 10000 - 10*d;
+        if (seen >= 2) {
+            movementScore = 0;
+        } else if (r->captured->getPieceType() == PieceName::KING) {
+            movementScore = MATE_SCORE;
         } else {
-            movementScore = quiescence(game, -mult, -beta, -alpha, d+1);
+            movementScore = -quiescence(game, -mult, -beta, -alpha, d+1, mateIn-1);
         }
-        if (movementScore > highestScore) {
-            highestScore = movementScore;
-            alpha = movementScore;
+        if (movementScore >= MATE_SCORE - MAX_DEPTH) {
+            movementScore--;
+            mateIn = MATE_SCORE - movementScore;
+        } else if (movementScore <= MAX_DEPTH - MATE_SCORE ) {
+            movementScore++;
         }
         game.undoMove();
+        movesExplored++;
+        if (movementScore > highestScore) {
+            highestScore = movementScore;
+            alpha = max(alpha, movementScore);
+        }
         if (alpha >= beta) break;
     }
-    for (Move* r : responses) {
-        delete r;
-    }
-    return -highestScore;
+    return highestScore;
 }
 
-// Based on negamax
-int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d, bool allowInvalid) {
-    movesExplored++;
-    if (d >= depth) return quiescence(game, -mult, alpha, beta, d);
-    vector<Move*> responses;
+int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d, int mateIn, bool allowInvalid) {
+
+    // Terminal nodes
+    if (mateIn == 0) return 0;
+    int oldAlpha = alpha;
+    unsigned long long positionHash = game.zobristHash;
+
+    // Tranposition table
+    unique_ptr<ttEntry>& entry = tTable[positionHash];
+    if (entry && entry->depth >= d) {
+        tableHits++;
+        int entryScore = entry->score;
+        if (entry->type == ttType::EXACT) {
+            return entryScore;
+        }
+        if (entry->type == ttType::LOWERBOUND) {
+            alpha = max(alpha, entryScore);
+        } else {
+            beta = min(beta, entryScore);
+        }
+        if (alpha >= beta) return entryScore;
+    }
+    if (d == 0) return quiescence(game, -mult, alpha, beta, depth, mateIn);
+ 
+    Move* entryMove = entry ? entry->bestMove.get() : nullptr;
+    if (entryMove) {
+        mateIn = min(mateIn, MATE_SCORE - abs(entry->score));
+    }
+
+    // Generate and order responses
+    vector<unique_ptr<Move>> responses;
     if (allowInvalid) {
         responses = game.getPossibleMoves();
     } else {
         responses = game.getValidMoves();
     }
-    // Check-mate!
-    // We subtract d to prioritise checkmates in fewer moves
-    if (responses.size() == 0) return 10000 - 10*d;
-    std::sort(responses.begin(), responses.end(), [this](Move* a, Move* b) {
-        return movementScore(a) > movementScore(b);
+    if (responses.size() == 0) return -MATE_SCORE;
+    std::sort(responses.begin(), responses.end(), [this, entryMove](unique_ptr<Move>& a, unique_ptr<Move>& b) {
+        return movementScore(a.get(), entryMove) > movementScore(b.get(), entryMove);
     });
-    int highestScore = -100000;
-    for (Move* r : responses) {
-        game.movePiece(r->moved, r->xTo, r->yTo);
+    int highestScore = NEGATIVE_INF;
+    unique_ptr<Move> bestMove = nullptr;
+    for (unique_ptr<Move>& r : responses) {
+        // Igore the move if we already analysed it
+        int seen = game.movePiece(r->moved, r->xTo, r->yTo);
         int movementScore;
         Piece* capturedPiece = r->captured;
-        if (capturedPiece && capturedPiece->getPieceName() == "King") {
-            // Value of a king, again d subtracted to prioritise fewer move mates
-            movementScore = 10000 - 10*d; 
+        if (seen >= 2) {
+            movementScore = 0;
+        } else if (capturedPiece && capturedPiece->getPieceType() == PieceName::KING) {
+            movementScore = MATE_SCORE;
         } else {
-            movementScore = bruteForce(game, -mult, -beta, -alpha, d+1, allowInvalid);
+            movementScore = -bruteForce(game, -mult, -beta, -alpha, d-1, mateIn-1, allowInvalid);
         }
-        if (movementScore > highestScore) {
-            highestScore = movementScore;
-            alpha = movementScore;
-            if (d == 0) {
-                bestMove = r;
-            }
+        // Implies some mate was found for ME
+        // We use 9900 since realistically we will never go to a depth higher than 100
+        if (movementScore >= MATE_SCORE - MAX_DEPTH) {
+            movementScore--;
+            mateIn = MATE_SCORE - movementScore;
+        } else if (movementScore <= MAX_DEPTH - MATE_SCORE) {
+            movementScore++;
         }
         game.undoMove();
+        movesExplored++;
+        if (movementScore > highestScore) {
+            highestScore = movementScore;
+            alpha = max(alpha, movementScore);
+            bestMove = move(r);
+        }
         if (alpha >= beta) break;
     }
-    for (Move* r : responses) {
-        if (r == bestMove) continue;
-        delete r;
+
+    // Add to transposition table
+    unique_ptr<ttEntry> newEntry = make_unique<ttEntry>();
+    newEntry->bestMove = move(bestMove);
+    newEntry->score = highestScore;
+    if (highestScore <= oldAlpha) {
+        newEntry->type = ttType::UPPERBOUND;
+        newEntry->bestMove = nullptr;
+    } else if (highestScore >= beta) {
+        newEntry->type = ttType::LOWERBOUND;
+    } else {
+        newEntry->type = ttType::EXACT;
     }
-    return -highestScore;
+    newEntry->depth = d;
+    tTable[positionHash] = move(newEntry);
+    return highestScore;
 }
 
-Move& BruteForceMover::getMove(Game& game) {
+void BruteForceMover::displayDebugTrace(Game& game, int toDepth) {
+    int traceDistance = 0;
+    for (int i = 1; i <= toDepth; i++) {
+        unique_ptr<ttEntry>& entry = tTable[game.zobristHash];
+        if (entry && entry->bestMove) {
+            Piece* movedPiece = entry->bestMove->moved;
+            float positionScore = (float)entry->score/10;
+            game.movePiece(movedPiece, entry->bestMove->xTo, entry->bestMove->yTo);
+            cout << i << ": Moved " << movedPiece->getPieceName() << " to (" << entry->bestMove->xTo << ", " << entry->bestMove->yTo << ") for " << positionScore << endl;
+        } else {
+            cout << "No more for " << i << " for some reason" << endl;
+            break;
+        }
+        traceDistance = i;
+    }
+    for (int i = 1; i <= traceDistance; i++) {
+        game.undoMove();
+    }
+}
+
+unique_ptr<Move> BruteForceMover::getMove(Game& game) {
+
+    // Initalise stats
     movesExplored = 0;
-    bestMove = nullptr;
-    auto t1 = high_resolution_clock::now();
-    float score = -(float)bruteForce(game, game.currentTurn, -100000, 100000, 0, !game.useThreatMap)/10;
-    auto t2 = high_resolution_clock::now();
-    duration<double, std::milli> ms_double = t2 - t1;
-    cout << "Explored a total of " << movesExplored << " moves in " << ms_double.count() << " ms" << endl;
-    cout << "Rate of nodes : " << movesExplored/ms_double.count() << "/ms" << endl;
-    cout << "Best score: " << score << endl;
-    return *bestMove;
+    tableHits = 0;
+    float score;
+    int reached = MAX_DEPTH;
+    auto startTime = high_resolution_clock::now();
+
+    // Perform Iterative deepening search
+    for (int i = 1; i <= MAX_DEPTH; i++) {
+        score = (float)bruteForce(game, game.currentTurn, NEGATIVE_INF, POSITIVE_INF, i, MAX_DEPTH, !game.useThreatMap);
+        auto passedTime = high_resolution_clock::now();
+        duration<double, std::milli> passedDuration = passedTime - startTime;
+        if (i >= depth && passedDuration.count() >= MAX_SEARCH) {
+            reached = i;
+            break;
+        };
+    }
+
+    // Log some of the stats
+    auto endTime = high_resolution_clock::now();
+    duration<double, std::milli> totalDuration = endTime - startTime;
+    cout << "Explored a total of " << movesExplored << " moves in " << totalDuration.count() << " ms" << endl;
+    cout << "Rate of nodes : " << movesExplored/totalDuration.count() << "/ms" << endl;
+    cout << "Hit the table a total of " << tableHits << " times" << endl;
+    cout << "Reached depth of : " << reached << endl;
+    cout << "Best score: " << score/10 << endl;
+
+    // Return the best move
+    unique_ptr<ttEntry>& rootEntry = tTable[game.zobristHash];
+    unique_ptr<Move> bestMove = move(rootEntry->bestMove);
+    tTable.clear();
+    return bestMove;
 }

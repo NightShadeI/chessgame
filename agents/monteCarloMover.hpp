@@ -8,7 +8,7 @@ class MonteCarloMover : public Agent {
         MonteCarloMover(int d, int t);
         int depth;
         int trails;
-        Move& getMove(Game& game) override;
+        unique_ptr<Move> getMove(Game& game) override;
 };
 
 #endif

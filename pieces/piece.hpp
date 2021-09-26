@@ -1,7 +1,19 @@
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 #ifndef PIECE_H
 #define PIECE_H
+
+using namespace std;
+
+enum PieceName {
+    PAWN,
+    ROOK,
+    KNIGHT,
+    BISHOP,
+    QUEEN,
+    KING
+};
 
 class Game;
 struct Move;
@@ -18,12 +30,13 @@ class Piece {
         void loadTexture();
         void render(sf::RenderWindow& window);
         void doMove(Game& game, Move& move, bool undo = false);
-        virtual std::vector<Move*> getMoves(Game& game);
+        virtual vector<unique_ptr<Move>> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
         bool canDoMove(Game& game, int newX, int newY);
         bool vigorousCanDoMove(Game& game, int newX, int newY);
         virtual bool isValidMove(Game& game, int newX, int newY);
         virtual std::string getPieceName();
+        virtual PieceName getPieceType();
         virtual bool isSlidingPiece();
         virtual int getPieceValue();
         virtual int getXTranslation();

@@ -1,14 +1,11 @@
 #include "board.hpp"
+#include "game.hpp"
 #include "threatTile.hpp"
 #include "pieces/piece.hpp"
 #include "move.hpp"
 
 using namespace std;
 using namespace sf;
-
-const int Board::width = 8;
-const int Board::height = 8;
-const int Board::tileSize = 80;
 
 void Board::render(RenderWindow& window, Game& game) {
     RectangleShape chessTile;
@@ -34,7 +31,7 @@ void Board::render(RenderWindow& window, Game& game) {
         }
     }
     if (game.moveHistory.size()) {
-        Move* lastMove = game.moveHistory[game.moveHistory.size() - 1];
+        unique_ptr<Move>& lastMove = game.moveHistory[game.moveHistory.size() - 1];
         lastMoveTile.setPosition(Board::tileSize * lastMove->xFrom, Board::tileSize * lastMove->yFrom);
         window.draw(lastMoveTile);
         lastMoveTile.setPosition(Board::tileSize * lastMove->xTo, Board::tileSize * lastMove->yTo);

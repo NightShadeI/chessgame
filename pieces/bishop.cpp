@@ -20,6 +20,10 @@ std::string Bishop::getPieceName() {
     return "Bishop";
 }
 
+PieceName Bishop::getPieceType() {
+    return PieceName::BISHOP;
+}
+
 int Bishop::getPieceValue() {
     return 30;
 }
@@ -34,8 +38,8 @@ bool Bishop::isValidMove(Game& game, int newX, int newY) {
     return xDiff == yDiff;
 }
 
-std::vector<Move*> Bishop::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> Bishop::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
     const std::vector<std::pair<int, int>> dirs = {
         {-1,  1},
         { 1,  1},
@@ -47,12 +51,12 @@ std::vector<Move*> Bishop::getMoves(Game& game) {
         while (curX += dir.first, curY += dir.second, (unsigned)curX < Board::width && (unsigned)curY < Board::height) {
             Piece* pieceAt = game.getPieceAt(curX, curY);
             if (pieceAt && pieceAt->type == type) break;
-            Move* move = new Move;
+            unique_ptr<Move> move = make_unique<Move>();
             move->moved = this;
             move->captured = game.getPieceAt(curX, curY);
             move->xTo = curX;
             move->yTo = curY;
-            moves.emplace_back(move);
+            moves.emplace_back(std::move(move));
             if (pieceAt) break;
         }
     }

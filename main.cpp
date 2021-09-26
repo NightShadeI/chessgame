@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+
 #include "game.hpp"
 #include "board.hpp"
 #include "move.hpp"
@@ -7,6 +8,7 @@
 #include "agents/bruteForceMover.hpp"
 #include "agents/monteCarloMover.hpp"
 #include "appConfig.hpp"
+#include "agents/testAgent.hpp"
 
 using namespace std;
 using namespace sf;
@@ -34,7 +36,9 @@ int main() {
     BruteForceMover strongerAgent(N+1);
     BruteForceMover strongestAgent(N+2);
     BruteForceMover deadlyAgent(N+3);
+    RandomMover randomAgent;
     
+    testAgent testAgent(5);
 
     Piece* selectedPiece = nullptr;
     int offsetX;
@@ -92,7 +96,7 @@ int main() {
 
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::R) {
-                agent.doMove(game);
+                randomAgent.doMove(game);
             }
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::T) {
@@ -109,6 +113,10 @@ int main() {
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::U) {
                 deadlyAgent.doMove(game);
+            }
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::A) {
+                testAgent.doMove(game);
             }
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::X) {

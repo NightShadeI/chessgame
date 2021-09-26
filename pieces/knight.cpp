@@ -12,6 +12,10 @@ std::string Knight::getPieceName() {
     return "Knight";
 }
 
+PieceName Knight::getPieceType() {
+    return PieceName::KNIGHT;
+}
+
 int Knight::getPieceValue() {
     return 30;
 }
@@ -22,8 +26,8 @@ bool Knight::isValidMove(Game& game, int newX, int newY) {
     return xDiff * yDiff == 2;
 }
 
-std::vector<Move*> Knight::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> Knight::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
     const std::vector<std::pair<int, int>> dirs = {
         {-2,  1},
         {-1,  2},
@@ -40,12 +44,12 @@ std::vector<Move*> Knight::getMoves(Game& game) {
         if ((unsigned)newX < Board::width && (unsigned)newY < Board::height) {
             Piece* pieceAt = game.getPieceAt(newX, newY);
             if (pieceAt && pieceAt->type == type) continue;
-            Move* move = new Move;
+            unique_ptr<Move> move = make_unique<Move>();
             move->moved = this;
             move->captured = game.getPieceAt(newX, newY);
             move->xTo = newX;
             move->yTo = newY;
-            moves.emplace_back(move);
+            moves.emplace_back(std::move(move));
         }
     }
     return moves;

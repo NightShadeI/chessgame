@@ -1,16 +1,21 @@
+#include <string>
+#include <cmath>
+
 #include "queen.hpp"
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
 #include "../propagators/piecePropagators.hpp"
-#include <string>
-#include <cmath>
 
 Queen::Queen(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
 std::string Queen::getPieceName() {
     return "Queen";
+}
+
+PieceName Queen::getPieceType() {
+    return PieceName::QUEEN;
 }
 
 int Queen::getXTranslation() {
@@ -31,8 +36,8 @@ bool Queen::isValidMove(Game& game, int newX, int newY) {
     return xDiff == yDiff || xDiff * yDiff == 0;
 }
 
-std::vector<Move*> Queen::getMoves(Game& game) {
-    std::vector<Move*> moves;
+vector<unique_ptr<Move>> Queen::getMoves(Game& game) {
+    vector<unique_ptr<Move>> moves;
     const std::vector<std::pair<int, int>> dirs = {
         {-1,  1},
         { 0,  1},
@@ -48,12 +53,12 @@ std::vector<Move*> Queen::getMoves(Game& game) {
         while (curX += dir.first, curY += dir.second, (unsigned)curX < Board::width && (unsigned)curY < Board::height) {
             Piece* pieceAt = game.getPieceAt(curX, curY);
             if (pieceAt && pieceAt->type == type) break;
-            Move* move = new Move;
+            unique_ptr<Move> move = make_unique<Move>();
             move->moved = this;
             move->captured = game.getPieceAt(curX, curY);
             move->xTo = curX;
             move->yTo = curY;
-            moves.emplace_back(move);
+            moves.emplace_back(std::move(move));
             if (pieceAt) break;
         }
     }

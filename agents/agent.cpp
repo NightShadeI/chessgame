@@ -1,18 +1,17 @@
-#include "agent.hpp"
 #include <vector>
+#include <memory>
+
+#include "agent.hpp"
 
 Agent::Agent() {
 }
 
-Move& Agent::getMove(Game& game) {
-    vector<Move*> moves = game.getValidMoves();
-    for (int i = 1; i < moves.size(); i++) {
-        delete moves[i];
-    }
-    return *moves[0];
+unique_ptr<Move> Agent::getMove(Game& game) {
+    vector<unique_ptr<Move>> moves = game.getValidMoves();
+    return move(moves[0]);
 }
 
 void Agent::doMove(Game& game) {
-    Move& agentChoice = getMove(game);
-    game.movePiece(agentChoice.moved, agentChoice.xTo, agentChoice.yTo);
+    unique_ptr<Move> agentChoice = getMove(game);
+    game.movePiece(agentChoice->moved, agentChoice->xTo, agentChoice->yTo);
 }

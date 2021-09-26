@@ -33,13 +33,10 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
         ThreatTile* tileTo = game.threatMap[move.yTo][move.xTo];
         if (!undo || !move.captured) {
             for (Piece* p : tileFrom->threatening) {
-                string pieceName = p->getPieceName();
                 // We should not update ourselves
                 if (p == this) continue;
                 // We can skip any of these pieces, they do not update
-                if (pieceName == "King") continue;
-                if (pieceName == "Pawn") continue;
-                if (pieceName == "Knight") continue;
+                if (!p->isSlidingPiece()) continue;
                 Propagator* prop = Propagator::fetchPropagator(p, &move, true);
                 prop->openPropagation(game);
                 delete prop;
@@ -49,13 +46,10 @@ void Piece::doMove(Game& game, Move& move, bool undo) {
         // If a piece was captured, threatened squares cant possibly change!
         if (undo || !move.captured) {
             for (Piece* p : tileTo->threatening) {
-                string pieceName = p->getPieceName();
                 // We should not update ourselves
                 if (p == this) continue;
                 // We can skip any of these pieces, they do not update
-                if (pieceName == "King") continue;
-                if (pieceName == "Pawn") continue;
-                if (pieceName == "Knight") continue;
+                if (!p->isSlidingPiece()) continue;
                 Propagator* prop = Propagator::fetchPropagator(p, &move, false);
                 prop->closePropagation(game);
                 delete prop;
@@ -88,12 +82,16 @@ void Piece::render(sf::RenderWindow& window) {
     window.draw(mySprite);
 }
 
-std::vector<Move*> Piece::getMoves(Game& game) {
-    return vector<Move*>();
+vector<unique_ptr<Move>> Piece::getMoves(Game& game) {
+    return vector<unique_ptr<Move>>();
 }
 
 std::string Piece::getPieceName() {
     return "defaultName";
+}
+
+PieceName Piece::getPieceType() {
+    return PieceName::PAWN;
 }
 
 int Piece::getPieceValue() {
@@ -111,8 +109,8 @@ std::string Piece::getPiecePath() {
 
 bool Piece::canDoMove(Game& game, int newX, int newY) {
 
-    string pieceName = getPieceName();
-    if (pieceName == "King") {
+    PieceName pieceName = getPieceType();
+    if (pieceName == PieceName::KING) {
         ThreatTile* mySquare = game.threatMap[yPos][xPos];
         ThreatTile* moveTo = game.threatMap[newY][newX];
         Piece* pieceAt = game.getPieceAt(newX, newY);
@@ -125,8 +123,7 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
         // We need to determine if the square will be threatened when we move there
         for (Piece* p : mySquare->threatening) {
             if (p->type == type) continue;
-            string enemyName = p->getPieceName();
-            if (enemyName == "Knight" || enemyName == "Pawn") continue;
+            if (!p->isSlidingPiece()) continue;
             int xDiff = xPos - p->xPos;
             int yDiff = yPos - p->yPos;
             int newXDiff = newX - p->xPos;
@@ -170,7 +167,7 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
         if (kingsAttacker->xPos == newX && kingsAttacker->yPos == newY) {
             // We are most certainly blocking if we capture the piece!
             doesBlock = true;
-        } else if (kingsAttacker->getPieceName() == "Knight") {
+        } else if (kingsAttacker->getPieceType() == PieceName::KNIGHT) {
             // if we don't capture the knight then this is an invalid move
             return false;
         } else if (kingsAttacker->xPos == myKing->xPos) {
@@ -246,9 +243,7 @@ bool Piece::canDoMove(Game& game, int newX, int newY) {
     // Then this is certainly an invalid move
     for (Piece* p : mySquare->threatening) {
         if (p->type == type) continue;
-        if (p->getPieceName() == "King") continue;
-        if (p->getPieceName() == "Knight") continue;
-        if (p->getPieceName() == "Pawn") continue;
+        if (!p->isSlidingPiece()) continue;
         int attackingXDiff = p->xPos - myKing->xPos;
         int attackingYDiff = p->yPos - myKing->yPos;
 
@@ -282,7 +277,7 @@ bool Piece::vigorousCanDoMove(Game& game, int newX, int newY) {
 
     // Check there are no pieces in the way of this piece
     // Knights are able to jump so we ignore these pieces
-    if (getPieceName() != "Knight") {
+    if (getPieceType() != PieceName::KNIGHT) {
         int xDir = newX > xPos ? 1 : newX == xPos ? 0 : -1;
         int yDir = newY > yPos ? 1 : newY == yPos ? 0 : -1;
         int curX = xPos + xDir, curY = yPos + yDir;
@@ -302,15 +297,14 @@ bool Piece::vigorousCanDoMove(Game& game, int newX, int newY) {
 
     // Check if the king can be captured the old way, incase threatmap is disabled
     game.movePiece(this, newX, newY);
-    vector<Move*> replies = game.getPossibleMoves();
+    vector<unique_ptr<Move>> replies = game.getCaptures();
     game.undoMove();
     bool kingCapturable = false;
-    for (Move* m : replies) {
+    for (unique_ptr<Move>& m : replies) {
         Piece* captured = m->captured;
-        if (captured && captured->getPieceName() == "King") {
+        if (captured && captured->getPieceType() == PieceName::KING) {
             kingCapturable = true;
         }
-        delete m;
     }
     return !kingCapturable;
 }

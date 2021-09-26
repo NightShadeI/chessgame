@@ -9,5 +9,6 @@
 extern std::string DEFAULT_FEN;
 void setupBoard(Game& game, std::string& FENstring);
 void setupThreatMap(Game& game);
+void setupHashes(Game& game);
 
 #endif

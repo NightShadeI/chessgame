@@ -7,9 +7,10 @@ class Queen : public Piece {
     public:
         Queen(int x, int y, int ty);
         std::string getPieceName() override;
+        PieceName getPieceType() override;
         int getXTranslation() override;
         bool isValidMove(Game& game, int newX, int newY) override;
-        std::vector<Move*> getMoves(Game& game) override;
+        vector<unique_ptr<Move>> getMoves(Game& game) override;
         int getPieceValue() override;
         bool isSlidingPiece() override;
         void setup(Game& game) override;
