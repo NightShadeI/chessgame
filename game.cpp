@@ -9,7 +9,7 @@ using namespace std;
 const int Game::PAWN_WEIGHT = 1;
 const int Game::KING_CLOSE_WEIGHT = 1;
 
-inline void Game::setupPiece(Piece* newPiece) {
+void Game::setupPiece(Piece* newPiece) {
     newPiece->loadTexture();
     pieces.insert(newPiece);
     int pieceX = newPiece->xPos;

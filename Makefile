@@ -1,7 +1,7 @@
 all: compile link run
 
 compile:
-	g++ -I sfml/src/include -c game.cpp
+	g++ -O3 -I sfml/src/include -c game.cpp
 	g++ -O3 -I sfml/src/include -c main.cpp
 	g++ -O3 -I sfml/src/include -c board.cpp
 	g++ -O3 -I sfml/src/include -c appConfig.cpp
