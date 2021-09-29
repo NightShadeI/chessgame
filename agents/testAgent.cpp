@@ -46,9 +46,9 @@ int testAgent::movementScore(Move* m, Move* optimalMove) {
     if (
         optimalMove &&
         optimalMove->moved == movedPiece &&
-        optimalMove->xTo == optimalMove->xTo &&
-        optimalMove->yTo == optimalMove->yTo
-    ) return 10000;
+        optimalMove->xTo == m->xTo &&
+        optimalMove->yTo == m->yTo
+    ) return positiveInfinity;
     Piece* capturedPiece = m->captured;
     int pushScore = 10 * ((m->yTo - m->yFrom) * -movedPiece->type);
     if (capturedPiece) {
@@ -160,17 +160,23 @@ unique_ptr<Move> testAgent::getMove(Game& game) {
     tableHits = 0;
     bestMove = nullptr;
     auto t1 = high_resolution_clock::now();
+    int reached = 100;
     float score;
-    for (int i = 1; i <= 6; i++) {
+    for (int i = 1; i <= reached; i++) {
         score = (float)bruteForce(game, i, 0, negativeInfinity, positiveInfinity, game.currentTurn)/10;
         auto t2 = high_resolution_clock::now();
         duration<double, std::milli> currentTime = t2 - t1;
+        if (i >= depth && currentTime.count() >= 1000) {
+            reached = i;
+            break;
+        };
     }
     auto t2 = high_resolution_clock::now();
     duration<double, std::milli> ms_double = t2 - t1;
     cout << "Explored a total of " << movesExplored << " moves in " << ms_double.count() << " ms" << endl;
     cout << "Rate of nodes : " << movesExplored/ms_double.count() << "/ms" << endl;
     cout << "Hit the table a total of " << tableHits << " times" << endl;
+    cout << "Reached depth of : " << reached << endl;
     cout << "Best score: " << score << endl;
     unique_ptr<ttEntry>& rootEntry = tTable[game.zobristHash];
     unique_ptr<Move> bestMove = move(rootEntry->bestMove);
