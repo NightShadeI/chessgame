@@ -212,6 +212,19 @@ vector<unique_ptr<Move>> Game::getValidMoves() {
     return filteredMoves;
 }
 
+bool Game::inCheck() {
+    for (Piece* p : pieces) {
+        if (p->type == currentTurn) continue;
+        vector<unique_ptr<Move>> possibleMoves = p->getMoves(*this);
+        for (unique_ptr<Move>& m : possibleMoves) {
+            if (m->captured && m->captured->getPieceType() == PieceName::KING) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 float Game::getGameScore() {
     return gameScore;
 }

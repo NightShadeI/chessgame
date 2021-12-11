@@ -164,10 +164,17 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
         if (alpha >= beta) break;
     }
 
+    int correctedMateScore = correctMateScoreForStorage(highestScore, plyFromRoot);
+    // Check if we can't move anywhere without king being captured.
+    // If this is the case, its either checkmate or stalemate
+    if (highestScore < beta && correctedMateScore <=  2 - MATE_SCORE && !game.inCheck()) {
+        highestScore = 0;
+    }
+
     // Add to transposition table
     unique_ptr<ttEntry> newEntry = make_unique<ttEntry>();
     newEntry->bestMove = move(bestMove);
-    newEntry->score = correctMateScoreForStorage(highestScore, plyFromRoot);
+    newEntry->score = correctedMateScore;
     if (highestScore <= oldAlpha) {
         newEntry->type = ttType::UPPERBOUND;
         newEntry->bestMove = nullptr;

@@ -37,6 +37,7 @@ class Game {
         void addThreat(Piece* attackingPiece, int xPos, int yPos);
         bool removeThreat(Piece* oldAttacker, int xPos, int yPos);
         int distanceToEnemyKing(Piece* p);
+        bool inCheck();
         Piece* getPieceAt(int boardX, int boardY);
         // Retuns how many times this position has been seen
         int movePiece(Piece* p, int newX, int newY);
