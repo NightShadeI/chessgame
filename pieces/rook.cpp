@@ -9,22 +9,6 @@
 Rook::Rook(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-std::string Rook::getPieceName() {
-    return "Rook";
-}
-
-PieceName Rook::getPieceType() {
-    return PieceName::ROOK;
-}
-
-int Rook::getPieceValue() {
-    return 50;
-}
-
-bool Rook::isSlidingPiece() {
-    return true;
-}
-
 bool Rook::isValidMove(Game& game, int newX, int newY) {
     int xDiff = newX - xPos;
     int yDiff = newY - yPos;

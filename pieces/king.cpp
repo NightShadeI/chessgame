@@ -9,18 +9,6 @@
 King::King(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-std::string King::getPieceName() {
-    return "King";
-}
-
-PieceName King::getPieceType() {
-    return PieceName::KING;
-}
-
-int King::getPieceValue() {
-    return 1000;
-}
-
 bool King::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

@@ -35,15 +35,18 @@ class Piece {
         bool canDoMove(Game& game, int newX, int newY);
         bool vigorousCanDoMove(Game& game, int newX, int newY);
         virtual bool isValidMove(Game& game, int newX, int newY);
-        virtual std::string getPieceName();
-        virtual PieceName getPieceType();
-        virtual bool isSlidingPiece();
-        virtual int getPieceValue();
-        virtual int getXTranslation();
+        inline virtual std::string getPieceName() { return "defaultName"; }
+        inline virtual PieceName getPieceType() { return PieceName::PAWN; }
+        inline virtual bool isSlidingPiece() { return false; }
+        inline virtual int getPieceValue() { return 0; }
+        inline virtual int getXTranslation() { return 10; }
+        inline std::string getPiecePath() {
+            std::string pieceColour = type == -1 ? "black" : "white";
+            return "img/" + pieceColour + getPieceName() + ".png";
+        }
         virtual void setup(Game& game);
         virtual void cleanThreats(Game& game);
         virtual void updateThreats(Game& game, int newX, int newY, Piece* captured);
-        std::string getPiecePath();
 };
 
 #endif

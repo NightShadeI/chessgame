@@ -10,26 +10,6 @@
 Queen::Queen(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-std::string Queen::getPieceName() {
-    return "Queen";
-}
-
-PieceName Queen::getPieceType() {
-    return PieceName::QUEEN;
-}
-
-int Queen::getXTranslation() {
-    return 5;
-}
-
-int Queen::getPieceValue() {
-    return 90;
-}
-
-bool Queen::isSlidingPiece() {
-    return true;
-}
-
 bool Queen::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

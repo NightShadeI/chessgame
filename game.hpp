@@ -38,14 +38,14 @@ class Game {
         bool removeThreat(Piece* oldAttacker, int xPos, int yPos);
         int distanceToEnemyKing(Piece* p);
         bool inCheck();
-        Piece* getPieceAt(int boardX, int boardY);
+        inline Piece* getPieceAt(int boardX, int boardY) { return board[boardY][boardX]; }
         // Retuns how many times this position has been seen
         int movePiece(Piece* p, int newX, int newY);
         void undoMove();
         vector<unique_ptr<Move>> getPossibleMoves();
         vector<unique_ptr<Move>> getCaptures();
         vector<unique_ptr<Move>> getValidMoves();
-        float getGameScore();
+        inline int getGameScore() { return gameScore; }
         inline unsigned long long zobristScore(Piece* p);
     private:
         void constructBoard();

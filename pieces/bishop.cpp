@@ -12,26 +12,6 @@
 Bishop::Bishop(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-int Bishop::getXTranslation() {
-    return 8;
-}
-
-std::string Bishop::getPieceName() {
-    return "Bishop";
-}
-
-PieceName Bishop::getPieceType() {
-    return PieceName::BISHOP;
-}
-
-int Bishop::getPieceValue() {
-    return 30;
-}
-
-bool Bishop::isSlidingPiece() {
-    return true;
-}
-
 bool Bishop::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

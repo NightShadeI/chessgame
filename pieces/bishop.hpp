@@ -6,12 +6,12 @@
 class Bishop : public Piece {
     public:
         Bishop(int x, int y, int ty);
-        std::string getPieceName() override;
-        PieceName getPieceType() override;
-        int getXTranslation() override;
+        inline std::string getPieceName() override { return "Bishop"; }
+        inline PieceName getPieceType() override { return PieceName::BISHOP; }
+        inline int getXTranslation() override { return 8; }
         bool isValidMove(Game& game, int newX, int newY) override;
-        int getPieceValue() override;
-        bool isSlidingPiece() override;
+        inline int getPieceValue() override { return 30; }
+        inline bool isSlidingPiece() override { return true; }
         vector<unique_ptr<Move>> getMoves(Game& game) override;
         void setup(Game& game) override;
         void cleanThreats(Game& game) override;

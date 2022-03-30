@@ -6,13 +6,13 @@
 class Queen : public Piece {
     public:
         Queen(int x, int y, int ty);
-        std::string getPieceName() override;
-        PieceName getPieceType() override;
-        int getXTranslation() override;
+        inline std::string getPieceName() override { return "Queen"; }
+        inline PieceName getPieceType() override { return PieceName::QUEEN; }
+        inline int getXTranslation() override { return 5; }
         bool isValidMove(Game& game, int newX, int newY) override;
         vector<unique_ptr<Move>> getMoves(Game& game) override;
-        int getPieceValue() override;
-        bool isSlidingPiece() override;
+        inline int getPieceValue() override { return 90; }
+        inline bool isSlidingPiece() override { return true; }
         void setup(Game& game) override;
         void cleanThreats(Game& game) override;
         void updateThreats(Game& game, int newX, int newY, Piece* captured) override;

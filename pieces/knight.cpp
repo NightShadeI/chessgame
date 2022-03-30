@@ -8,18 +8,6 @@
 Knight::Knight(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-std::string Knight::getPieceName() {
-    return "Knight";
-}
-
-PieceName Knight::getPieceType() {
-    return PieceName::KNIGHT;
-}
-
-int Knight::getPieceValue() {
-    return 30;
-}
-
 bool Knight::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

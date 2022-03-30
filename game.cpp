@@ -59,10 +59,6 @@ void Game::constructBoard() {
     seenPositions[zobristHash]++;
 }
 
-Piece* Game::getPieceAt(int boardX, int boardY) {
-    return board[boardY][boardX];
-}
-
 Game::Game() {
     constructBoard();
     totalMoves = 0;
@@ -223,10 +219,6 @@ bool Game::inCheck() {
         }
     }
     return false;
-}
-
-float Game::getGameScore() {
-    return gameScore;
 }
 
 unsigned long long Game::zobristScore(Piece* p) {

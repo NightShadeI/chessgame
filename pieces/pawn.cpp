@@ -10,23 +10,6 @@
 Pawn::Pawn(int x, int y, int ty) : Piece(x, y, ty) {
 }
 
-std::string Pawn::getPieceName() {
-    return "Pawn";
-}
-
-PieceName Pawn::getPieceType() {
-    return PieceName::PAWN;
-}
-
-int Pawn::getXTranslation() {
-    return 14;
-}
-
-int Pawn::getPieceValue() {
-    return 10;
-}
-
-
 bool Pawn::isValidMove(Game& game, int newX, int newY) {
     int xDiff = abs(newX - xPos);
     int yDiff = abs(newY - yPos);

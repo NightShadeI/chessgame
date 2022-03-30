@@ -68,10 +68,6 @@ void Piece::setDrag(int deltaX, int deltaY) {
     dragOffsetY = deltaY;
 }
 
-int Piece::getXTranslation() {
-    return 10;
-}
-
 void Piece::render(sf::RenderWindow& window) {
     const int drawX = Board::tileSize * xPos + getXTranslation() + dragOffsetX;
     const int drawY = Board::tileSize * yPos + 10 + dragOffsetY;
@@ -84,27 +80,6 @@ void Piece::render(sf::RenderWindow& window) {
 
 vector<unique_ptr<Move>> Piece::getMoves(Game& game) {
     return vector<unique_ptr<Move>>();
-}
-
-std::string Piece::getPieceName() {
-    return "defaultName";
-}
-
-PieceName Piece::getPieceType() {
-    return PieceName::PAWN;
-}
-
-int Piece::getPieceValue() {
-    return 0;
-}
-
-bool Piece::isSlidingPiece() {
-    return false;
-}
-
-std::string Piece::getPiecePath() {
-    std::string pieceColour = type == -1 ? "black" : "white";
-    return "img/" + pieceColour + getPieceName() + ".png";
 }
 
 bool Piece::canDoMove(Game& game, int newX, int newY) {
