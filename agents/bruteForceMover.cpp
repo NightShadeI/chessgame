@@ -37,8 +37,9 @@ inline int correctMateScoreForStorage (int score, int numPlySearched) {
     return score;
 }
 
-BruteForceMover::BruteForceMover(int d) {
+BruteForceMover::BruteForceMover(int d, bool timer) {
     depth = d;
+    enableTimer = timer;
 }
 
 int BruteForceMover::movementScore(Move* m, Move* optimalMove) {
@@ -222,7 +223,7 @@ unique_ptr<Move> BruteForceMover::getMove(Game& game) {
         score = (float)bruteForce(game, game.currentTurn, NEGATIVE_INF, POSITIVE_INF, i, 0, !game.useThreatMap);
         auto passedTime = high_resolution_clock::now();
         duration<double, std::milli> passedDuration = passedTime - startTime;
-        if (i >= depth && passedDuration.count() >= MAX_SEARCH) {
+        if (i >= depth && (!enableTimer || passedDuration.count() >= MAX_SEARCH)) {
             reached = i;
             break;
         };

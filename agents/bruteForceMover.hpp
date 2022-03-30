@@ -8,10 +8,11 @@
 
 class BruteForceMover : public Agent {
     public:
-        BruteForceMover(int d);
+        BruteForceMover(int d, bool timer = false);
         int depth;
         int movesExplored;
         int tableHits;
+        bool enableTimer;
         unordered_map<unsigned long long, unique_ptr<ttEntry>> tTable;
         inline int movementScore(Move* m, Move* optimalMove);
         int quiescence(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot);

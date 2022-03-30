@@ -35,7 +35,8 @@ int main() {
     BruteForceMover agent(N);
     BruteForceMover strongerAgent(N+1);
     BruteForceMover strongestAgent(N+2);
-    BruteForceMover deadlyAgent(N+3);
+    BruteForceMover deadlyAgent(N+3, true);
+    BruteForceMover deadlyWaitableAgent(N+5);
     RandomMover randomAgent;
     
     testAgent testAgent(5);
@@ -113,6 +114,10 @@ int main() {
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::U) {
                 deadlyAgent.doMove(game);
+            }
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::I) {
+                deadlyWaitableAgent.doMove(game);
             }
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::A) {
