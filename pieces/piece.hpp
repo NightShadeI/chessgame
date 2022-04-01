@@ -32,7 +32,6 @@ class Piece {
         void doMove(Game& game, Move& move, bool undo = false);
         virtual vector<unique_ptr<Move>> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
-        bool canDoMove(Game& game, int newX, int newY);
         bool vigorousCanDoMove(Game& game, int newX, int newY);
         virtual bool isValidMove(Game& game, int newX, int newY);
         inline virtual std::string getPieceName() { return "defaultName"; }
@@ -44,9 +43,6 @@ class Piece {
             std::string pieceColour = type == -1 ? "black" : "white";
             return "img/" + pieceColour + getPieceName() + ".png";
         }
-        virtual void setup(Game& game);
-        virtual void cleanThreats(Game& game);
-        virtual void updateThreats(Game& game, int newX, int newY, Piece* captured);
 };
 
 #endif

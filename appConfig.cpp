@@ -71,22 +71,6 @@ void setupBoard(Game& game, string& FENstring) {
     // TODO: Add support for castling, enpessant etc
 }
 
-void setupThreatMap(Game& game) {
-    game.threatMap.resize(Board::height);
-    for (auto& row : game.threatMap) {
-        row.resize(Board::width);
-        for (int i = 0; i < row.size(); i++) {
-            ThreatTile* tile = new ThreatTile;
-            tile->whiteCount = 0;
-            tile->blackCount = 0;
-            row[i] = tile;
-        }
-    }
-    for (Piece* p : game.pieces) {
-        p->setup(game);
-    }
-}
-
 void setupHashes(Game& game) {
     std::random_device rd;
     std::default_random_engine generator(rd());

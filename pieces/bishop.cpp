@@ -2,7 +2,6 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
-#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <vector>
 #include <utility>
@@ -41,18 +40,4 @@ vector<unique_ptr<Move>> Bishop::getMoves(Game& game) {
         }
     }
     return moves;
-}
-
-void Bishop::setup(Game& game) {
-    PiecePropagators::bishopSetup(game, this);
-    game.addThreat(this, xPos, yPos);
-}
-
-void Bishop::cleanThreats(Game& game) {
-    PiecePropagators::bishopSetup(game, this, true);
-    game.removeThreat(this, xPos, yPos);
-}
-
-void Bishop::updateThreats(Game& game, int newX, int newY, Piece* captured) {
-    PiecePropagators::bishopUpdater(game, this, newX, newY, captured);
 }

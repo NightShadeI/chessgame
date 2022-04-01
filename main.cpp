@@ -6,9 +6,7 @@
 #include "agents/agent.hpp"
 #include "agents/randomMover.hpp"
 #include "agents/bruteForceMover.hpp"
-#include "agents/monteCarloMover.hpp"
 #include "appConfig.hpp"
-#include "agents/testAgent.hpp"
 
 using namespace std;
 using namespace sf;
@@ -38,8 +36,6 @@ int main() {
     BruteForceMover deadlyAgent(N+3, true);
     BruteForceMover deadlyWaitableAgent(N+5);
     RandomMover randomAgent;
-    
-    testAgent testAgent(5);
 
     Piece* selectedPiece = nullptr;
     int offsetX;
@@ -118,15 +114,6 @@ int main() {
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::I) {
                 deadlyWaitableAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::A) {
-                testAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::X) {
-                setupThreatMap(game);
-                game.toggleThreats();
             }
 
             if (selectedPiece) {

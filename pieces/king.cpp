@@ -2,7 +2,6 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
-#include "../propagators/piecePropagators.hpp"
 #include <string>
 #include <cmath>
 
@@ -42,18 +41,4 @@ vector<unique_ptr<Move>> King::getMoves(Game& game) {
         }
     }
     return moves;
-}
-
-void King::setup(Game& game) {
-    PiecePropagators::kingSetup(game, this);
-    game.addThreat(this, xPos, yPos);
-}
-
-void King::cleanThreats(Game& game) {
-    PiecePropagators::kingSetup(game, this, true);
-    game.removeThreat(this, xPos, yPos);
-}
-
-void King::updateThreats(Game& game, int newX, int newY, Piece* captured) {
-    PiecePropagators::kingUpdater(game, this, newX, newY);
 }

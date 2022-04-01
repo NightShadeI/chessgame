@@ -2,7 +2,6 @@
 #include "move.hpp"
 #include "appConfig.hpp"
 #include "pieces/queen.hpp"
-#include "propagators/piecePropagators.hpp"
 
 using namespace std;
 
@@ -18,35 +17,6 @@ void Game::setupPiece(Piece* newPiece) {
     zobristHash ^= zobristScore(newPiece);
 }
 
-void Game::addThreat(Piece* attackingPiece, int xPos, int yPos) {
-    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return;
-    ThreatTile* tile = threatMap[yPos][xPos];
-    tile->threatening.insert(attackingPiece);
-    if (attackingPiece->type == 1) {
-        tile->whiteCount++;
-    } else {
-        tile->blackCount++;
-    }
-}
-
-bool Game::removeThreat(Piece* oldAttacker, int xPos, int yPos) {
-    if ((unsigned)xPos >= Board::width || (unsigned)yPos >= Board::height) return false;
-    ThreatTile* tile = threatMap[yPos][xPos];
-    size_t piecesRemoved = tile->threatening.erase(oldAttacker);
-    // If the piece did not exist, return false to indicate no removal
-    if (piecesRemoved == 0) return false;
-    if (oldAttacker->type == 1) {
-        tile->whiteCount--;
-    } else {
-        tile->blackCount--;
-    }
-    return true;
-}
-
-void Game::toggleThreats() {
-    useThreatMap = !useThreatMap;
-}
-
 void Game::constructBoard() {
     const int BOARD_SIZE = 8;
     board.resize(BOARD_SIZE);
@@ -55,7 +25,6 @@ void Game::constructBoard() {
     }
     setupHashes(*this);
     setupBoard(*this, DEFAULT_FEN);
-    setupThreatMap(*this);
     seenPositions[zobristHash]++;
 }
 
@@ -64,7 +33,6 @@ Game::Game() {
     totalMoves = 0;
     currentTurn = 1;
     gameScore = 0;
-    useThreatMap = false;
 }
 
 inline int getPieceStartRow(Piece* p) {
@@ -87,9 +55,6 @@ int Game::movePiece(Piece* p, int newX, int newY) {
     }
     if (toCapture) {
         pieces.erase(toCapture);
-        if (useThreatMap) {
-            toCapture->cleanThreats(*this);
-        }
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
         zobristHash ^= zobristScore(toCapture);
@@ -113,9 +78,6 @@ int Game::movePiece(Piece* p, int newX, int newY) {
         Queen* queen = new Queen(newX, newY, pieceType);
         pieces.erase(p);
         setupPiece(queen);
-        if (useThreatMap) {
-            queen->setup(*this);
-        }
         gameScore -= 80 * pieceType;
     } else {
         zobristHash ^= zobristScore(p);
@@ -141,9 +103,6 @@ void Game::undoMove() {
     }
     if (isPromotion) {
         pieces.erase(undoPiece);
-        if (useThreatMap) {
-            undoPiece->cleanThreats(*this);
-        }
         zobristHash ^= zobristScore(undoPiece);
         delete undoPiece;
         pieces.insert(movedPiece);
@@ -156,9 +115,6 @@ void Game::undoMove() {
 
     if (captured) {
         pieces.insert(captured);
-        if (useThreatMap) {
-            captured->setup(*this);
-        }
         gameScore -= captured->getPieceValue() * -pieceType;
         gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
         zobristHash ^= zobristScore(captured);
@@ -201,7 +157,7 @@ vector<unique_ptr<Move>> Game::getValidMoves() {
     vector<unique_ptr<Move>> filteredMoves;
     filteredMoves.reserve(moves.size());
     for (unique_ptr<Move>& m : moves) {
-        if (m->moved->canDoMove(*this, m->xTo, m->yTo)) {
+        if (m->moved->vigorousCanDoMove(*this, m->xTo, m->yTo)) {
             filteredMoves.emplace_back(move(m));
         }
     }

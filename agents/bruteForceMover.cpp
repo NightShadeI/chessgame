@@ -99,7 +99,7 @@ int BruteForceMover::quiescence(Game& game, int mult, int alpha, int beta, int d
     return highestScore;
 }
 
-int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot, bool allowInvalid) {
+int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot) {
 
     int oldAlpha = alpha;
     unsigned long long positionHash = game.zobristHash;
@@ -129,12 +129,7 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
     if (d == 0) return quiescence(game, -mult, alpha, beta, depth, plyFromRoot);
 
     // Generate and order responses
-    vector<unique_ptr<Move>> responses;
-    if (allowInvalid) {
-        responses = game.getPossibleMoves();
-    } else {
-        responses = game.getValidMoves();
-    }
+    vector<unique_ptr<Move>> responses = game.getPossibleMoves();
     if (responses.size() == 0) return -MATE_SCORE;
 
     Move* entryMove = entry ? entry->bestMove.get() : nullptr;
@@ -153,7 +148,7 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
         } else if (capturedPiece && capturedPiece->getPieceType() == PieceName::KING) {
             movementScore = MATE_SCORE - plyFromRoot - 1;
         } else {
-            movementScore = -bruteForce(game, -mult, -beta, -alpha, d-1, plyFromRoot+1, allowInvalid);
+            movementScore = -bruteForce(game, -mult, -beta, -alpha, d-1, plyFromRoot+1);
         }
         game.undoMove();
         movesExplored++;
@@ -220,7 +215,7 @@ unique_ptr<Move> BruteForceMover::getMove(Game& game) {
 
     // Perform Iterative deepening search
     for (int i = 1; i <= MAX_DEPTH; i++) {
-        score = (float)bruteForce(game, game.currentTurn, NEGATIVE_INF, POSITIVE_INF, i, 0, !game.useThreatMap);
+        score = (float)bruteForce(game, game.currentTurn, NEGATIVE_INF, POSITIVE_INF, i, 0);
         auto passedTime = high_resolution_clock::now();
         duration<double, std::milli> passedDuration = passedTime - startTime;
         if (i >= depth && (!enableTimer || passedDuration.count() >= MAX_SEARCH)) {

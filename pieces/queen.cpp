@@ -5,7 +5,6 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
-#include "../propagators/piecePropagators.hpp"
 
 Queen::Queen(int x, int y, int ty) : Piece(x, y, ty) {
 }
@@ -43,18 +42,4 @@ vector<unique_ptr<Move>> Queen::getMoves(Game& game) {
         }
     }
     return moves;
-}
-
-void Queen::setup(Game& game) {
-    PiecePropagators::queenSetup(game, this);
-    game.addThreat(this, xPos, yPos);
-}
-
-void Queen::cleanThreats(Game& game) {
-    PiecePropagators::queenSetup(game, this, true);
-    game.removeThreat(this, xPos, yPos);
-}
-
-void Queen::updateThreats(Game& game, int newX, int newY, Piece* captured) {
-    PiecePropagators::queenUpdater(game, this, newX, newY, captured);
 }

@@ -11,9 +11,6 @@ class King : public Piece {
         bool isValidMove(Game& game, int newX, int newY) override;
         vector<unique_ptr<Move>> getMoves(Game& game) override;
         inline int getPieceValue() override { return 1000; }
-        void setup(Game& game) override;
-        void cleanThreats(Game& game) override;
-        void updateThreats(Game& game, int newX, int newY, Piece* captured) override;
 };
 
 #endif

@@ -4,7 +4,6 @@
 #include "../board.hpp"
 #include "../game.hpp"
 #include "../move.hpp"
-#include "../propagators/piecePropagators.hpp"
 
 Rook::Rook(int x, int y, int ty) : Piece(x, y, ty) {
 }
@@ -38,18 +37,4 @@ vector<unique_ptr<Move>> Rook::getMoves(Game& game) {
         }
     }
     return moves;
-}
-
-void Rook::setup(Game& game) {
-    PiecePropagators::rookSetup(game, this);
-    game.addThreat(this, xPos, yPos);
-}
-
-void Rook::cleanThreats(Game& game) {
-    PiecePropagators::rookSetup(game, this, true);
-    game.removeThreat(this, xPos, yPos);
-}
-
-void Rook::updateThreats(Game& game, int newX, int newY, Piece* captured) {
-    PiecePropagators::rookUpdater(game, this, newX, newY, captured);
 }

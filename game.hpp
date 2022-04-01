@@ -4,8 +4,6 @@
 #include <memory>
 
 #include "pieces/piece.hpp"
-#include "threatTile.hpp"
-#include "threatTile.hpp"
 #include "board.hpp"
 
 using namespace std;
@@ -23,19 +21,14 @@ class Game {
         unsigned long long zobristValues[12 * Board::width * Board::height + 1];
         unsigned long long zobristHash;
         unordered_map<unsigned long long, int> seenPositions;
-        bool useThreatMap;
         static const int PAWN_WEIGHT;
         static const int KING_CLOSE_WEIGHT;
         Piece* whiteKing;
         Piece* blackKing;
         vector<unique_ptr<Move>> moveHistory;
         vector<vector<Piece*>> board;
-        vector<vector<ThreatTile*>> threatMap;
         unordered_set<Piece*> pieces;
-        void toggleThreats();
         void setupPiece(Piece* newPiece);
-        void addThreat(Piece* attackingPiece, int xPos, int yPos);
-        bool removeThreat(Piece* oldAttacker, int xPos, int yPos);
         int distanceToEnemyKing(Piece* p);
         bool inCheck();
         inline Piece* getPieceAt(int boardX, int boardY) { return board[boardY][boardX]; }

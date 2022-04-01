@@ -16,7 +16,7 @@ class BruteForceMover : public Agent {
         unordered_map<unsigned long long, unique_ptr<ttEntry>> tTable;
         inline int movementScore(Move* m, Move* optimalMove);
         int quiescence(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot);
-        int bruteForce(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot, bool allowInvalid=true);
+        int bruteForce(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot);
         unique_ptr<Move> getMove(Game& game) override;
         void displayDebugTrace(Game& game, int toDepth);
 };

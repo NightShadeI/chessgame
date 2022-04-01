@@ -5,7 +5,6 @@
 #include "../game.hpp"
 #include "../board.hpp"
 #include "../move.hpp"
-#include "../propagators/piecePropagators.hpp"
 
 Pawn::Pawn(int x, int y, int ty) : Piece(x, y, ty) {
 }
@@ -69,16 +68,4 @@ vector<unique_ptr<Move>> Pawn::getMoves(Game& game) {
     moves.emplace_back(generateMove(game, xPos, yPos - type * 2));
 
     return moves;
-}
-
-void Pawn::setup(Game& game) {
-    PiecePropagators::pawnSetup(game, this);
-}
-
-void Pawn::cleanThreats(Game& game) {
-    PiecePropagators::pawnSetup(game, this, true);
-}
-
-void Pawn::updateThreats(Game& game, int newX, int newY, Piece* captured) {
-    PiecePropagators::pawnUpdater(game, this, newX, newY);
 }

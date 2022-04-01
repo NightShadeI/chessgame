@@ -13,9 +13,6 @@ class Bishop : public Piece {
         inline int getPieceValue() override { return 30; }
         inline bool isSlidingPiece() override { return true; }
         vector<unique_ptr<Move>> getMoves(Game& game) override;
-        void setup(Game& game) override;
-        void cleanThreats(Game& game) override;
-        void updateThreats(Game& game, int newX, int newY, Piece* captured) override;
 };
 
 #endif
