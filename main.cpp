@@ -51,77 +51,73 @@ int main() {
         for (Piece* p: game.pieces) {
             p->render(window);
         }
+        if (selectedPiece) {
+            selectedPiece->setDrag(mousePos.x - offsetX, mousePos.y - offsetY);
+        }
         window.display();  
 
         Event event;  
-
         while (window.pollEvent(event))
-        {          
-            if (event.type == Event::Closed) {
-                window.close();
-            }
-
-            if (event.type == Event::MouseButtonPressed) {
-                offsetX = mousePos.x;
-                offsetY = mousePos.y;
-                int boardX = mousePos.x / Board::tileSize;
-                int boardY = mousePos.y / Board::tileSize;
-                Piece* cantidatePiece = game.getPieceAt(boardX, boardY);
-                if (cantidatePiece && cantidatePiece->type == game.currentTurn) {
-                    selectedPiece = cantidatePiece;
+        {
+            switch (event.type) {
+                case Event::Closed:
+                    window.close();
+                    break;
+                case Event::MouseButtonPressed:
+                {
+                    offsetX = mousePos.x;
+                    offsetY = mousePos.y;
+                    int boardX = mousePos.x / Board::tileSize;
+                    int boardY = mousePos.y / Board::tileSize;
+                    Piece* cantidatePiece = game.getPieceAt(boardX, boardY);
+                    if (cantidatePiece && cantidatePiece->type == game.currentTurn) {
+                        selectedPiece = cantidatePiece;
+                    }
+                    break;
                 }
-            }
-
-            if (selectedPiece && event.type == Event::MouseButtonReleased) {
-                int boardX = mousePos.x / Board::tileSize;
-                int boardY = mousePos.y / Board::tileSize;
-                if (selectedPiece->vigorousCanDoMove(game, boardX, boardY)) {
-                    game.movePiece(selectedPiece, boardX, boardY);
-                } else {
-                    selectedPiece->setDrag(0, 0);
+                case Event::MouseButtonReleased:
+                {
+                    if (!selectedPiece) break;
+                    int boardX = mousePos.x / Board::tileSize;
+                    int boardY = mousePos.y / Board::tileSize;
+                    if (selectedPiece->vigorousCanDoMove(game, boardX, boardY)) {
+                        game.movePiece(selectedPiece, boardX, boardY);
+                    } else {
+                        selectedPiece->setDrag(0, 0);
+                    }
+                    selectedPiece = nullptr;
+                    break;
                 }
-                selectedPiece = nullptr;
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Z) {
-                game.undoMove();
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::W) {
-                dumbestAgent.doMove(game);
-            }
-
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::R) {
-                randomAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::T) {
-                strongerAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::E) {
-                dumberAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Y) {
-                strongestAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::U) {
-                deadlyAgent.doMove(game);
-            }
-
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::I) {
-                deadlyWaitableAgent.doMove(game);
-            }
-
-            if (selectedPiece) {
-                selectedPiece->setDrag(mousePos.x - offsetX, mousePos.y - offsetY);
-            }
+                case Event::KeyPressed:
+                    switch (event.key.code) {
+                        case Keyboard::Z:
+                            game.undoMove();
+                            break;
+                        case Keyboard::R:
+                            randomAgent.doMove(game);
+                            break;
+                        case Keyboard::W:
+                            dumbestAgent.doMove(game);
+                            break;
+                        case Keyboard::E:
+                            dumberAgent.doMove(game);
+                            break;
+                        case Keyboard::T:
+                            strongerAgent.doMove(game);
+                            break;
+                        case Keyboard::Y:
+                            strongestAgent.doMove(game);
+                            break;
+                        case Keyboard::U:
+                            deadlyAgent.doMove(game);
+                            break;
+                        case Keyboard::I:
+                            deadlyWaitableAgent.doMove(game);
+                            break;
+                    }
+                    break;
+            } 
         }
-
     }
-
     return 0;
 }
