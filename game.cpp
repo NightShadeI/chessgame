@@ -65,13 +65,7 @@ int Game::movePiece(Piece* p, int newX, int newY) {
     totalMoves++;
     currentTurn = -currentTurn;
     zobristHash ^= zobristValues[0];
-    unique_ptr<Move> move = make_unique<Move>();
-    move->moved = p;
-    move->captured = toCapture;
-    move->xFrom = p->xPos;
-    move->yFrom = p->yPos;
-    move->xTo = newX;
-    move->yTo = newY;
+    unique_ptr<Move> move = make_unique<Move>(Move{p, toCapture, p->xPos, p->yPos, newX, newY});
     p->doMove(*this, *move);
     moveHistory.emplace_back(std::move(move));
     if (isPromotion) {

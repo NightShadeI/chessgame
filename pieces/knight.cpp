@@ -32,11 +32,7 @@ vector<unique_ptr<Move>> Knight::getMoves(Game& game) {
             Piece* pieceAt = game.getPieceAt(newX, newY);
             if (pieceAt && pieceAt->type == type) continue;
             unique_ptr<Move> move = make_unique<Move>();
-            move->moved = this;
-            move->captured = game.getPieceAt(newX, newY);
-            move->xTo = newX;
-            move->yTo = newY;
-            moves.emplace_back(std::move(move));
+            moves.emplace_back(make_unique<Move>(Move{this, game.getPieceAt(newX, newY), 0, 0, newX, newY}));
         }
     }
     return moves;

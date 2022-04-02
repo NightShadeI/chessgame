@@ -30,12 +30,7 @@ vector<unique_ptr<Move>> Bishop::getMoves(Game& game) {
         while (curX += dir.first, curY += dir.second, (unsigned)curX < Board::width && (unsigned)curY < Board::height) {
             Piece* pieceAt = game.getPieceAt(curX, curY);
             if (pieceAt && pieceAt->type == type) break;
-            unique_ptr<Move> move = make_unique<Move>();
-            move->moved = this;
-            move->captured = game.getPieceAt(curX, curY);
-            move->xTo = curX;
-            move->yTo = curY;
-            moves.emplace_back(std::move(move));
+            moves.emplace_back(make_unique<Move>(Move{this, game.getPieceAt(curX, curY), 0, 0, curX, curY}));
             if (pieceAt) break;
         }
     }
