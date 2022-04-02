@@ -44,47 +44,57 @@ inline int getPieceStartRow(Piece* p) {
 }
 
 int Game::movePiece(Piece* p, int newX, int newY) {
+    
+    // Setup different parameters
     int pieceType = p->type;
     board[p->yPos][p->xPos] = nullptr;
     zobristHash ^= zobristScore(p);
     Piece* toCapture = board[newY][newX];
     bool isPawn = p->getPieceType() == PieceName::PAWN;
     bool isPromotion = isPawn && (newY == 0 || newY == Board::height-1);
-    if (!isPromotion) {
-        board[newY][newX] = p;
+
+    // Handle some scoring related to how close to king
+    if (p->getPieceType() != PieceName::KING) {
+        gameScore -= KING_CLOSE_WEIGHT * (p->yPos - newY);
     }
+
+    // Handle logic when piece captured
     if (toCapture) {
         pieces.erase(toCapture);
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
         zobristHash ^= zobristScore(toCapture);
     }
-    if (p->getPieceType() != PieceName::KING) {
-        gameScore -= KING_CLOSE_WEIGHT * (p->yPos - newY);
-    }
-    totalMoves++;
-    currentTurn = -currentTurn;
-    zobristHash ^= zobristValues[0];
+
+    // Perform the move (We must do this before promotion, due to promotions zobrist score)
     unique_ptr<Move> move = make_unique<Move>(Move{p, toCapture, p->xPos, p->yPos, newX, newY});
     p->doMove(*this, *move);
     moveHistory.emplace_back(std::move(move));
+
+    // Handle logic when piece promoted
     if (isPromotion) {
         Queen* queen = new Queen(newX, newY, pieceType);
         pieces.erase(p);
         setupPiece(queen);
         gameScore -= 80 * pieceType;
     } else {
+        board[newY][newX] = p;
         zobristHash ^= zobristScore(p);
     }
+
+    // Update the rest of the game state as needed
+    totalMoves++;
+    currentTurn = -currentTurn;
+    zobristHash ^= zobristValues[0];
     return ++seenPositions[zobristHash];
 }
 
 void Game::undoMove() {
-    // No move is before the first move, so ignore
-    if (totalMoves == 0) return;
     if (!--seenPositions[zobristHash]) {
         seenPositions.erase(zobristHash);
     }
+
+    // Setup different parameters
     unique_ptr<Move> moveTaken = move(moveHistory[totalMoves-1]);
     moveHistory.pop_back();
     Piece* movedPiece = moveTaken->moved;
@@ -92,9 +102,21 @@ void Game::undoMove() {
     Piece* undoPiece = board[moveTaken->yTo][moveTaken->xTo];
     int pieceType = movedPiece->type;
     bool isPromotion = movedPiece != undoPiece;
+
+    // Handle some scoring related to how close to king
     if (movedPiece->getPieceType() != PieceName::KING) {
         gameScore += KING_CLOSE_WEIGHT * (moveTaken->yFrom - moveTaken->yTo);
     }
+
+    // Handle logic when piece captured
+    if (captured) {
+        pieces.insert(captured);
+        gameScore -= captured->getPieceValue() * -pieceType;
+        gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
+        zobristHash ^= zobristScore(captured);
+    }
+
+    // Handle logic when piece promoted
     if (isPromotion) {
         pieces.erase(undoPiece);
         zobristHash ^= zobristScore(undoPiece);
@@ -104,15 +126,10 @@ void Game::undoMove() {
     } else {
         zobristHash ^= zobristScore(movedPiece);
     }
+
+    // Update the rest of the game state as needed
     board[moveTaken->yFrom][moveTaken->xFrom] = movedPiece;
     board[moveTaken->yTo][moveTaken->xTo] = captured;
-
-    if (captured) {
-        pieces.insert(captured);
-        gameScore -= captured->getPieceValue() * -pieceType;
-        gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
-        zobristHash ^= zobristScore(captured);
-    }
     totalMoves--;
     currentTurn = -currentTurn;
     movedPiece->doMove(*this, *moveTaken, true);

@@ -91,6 +91,8 @@ int main() {
                 case Event::KeyPressed:
                     switch (event.key.code) {
                         case Keyboard::Z:
+                            // No move is before the first move, so ignore if no moves done
+                            if (game.totalMoves == 0) break;
                             game.undoMove();
                             break;
                         case Keyboard::R:
