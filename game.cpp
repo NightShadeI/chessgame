@@ -1,12 +1,13 @@
 #include "game.hpp"
 #include "move.hpp"
+#include "board.hpp"
 #include "appConfig.hpp"
 #include "pieces/queen.hpp"
 
 using namespace std;
 
-const int Game::PAWN_WEIGHT = 1;
 const int Game::KING_CLOSE_WEIGHT = 1;
+const int Game::KING_CASTLE_WEIGHT = 8;
 
 void Game::setupPiece(Piece* newPiece) {
     newPiece->loadTexture();
@@ -23,6 +24,7 @@ void Game::constructBoard() {
     for (int i = 0; i < BOARD_SIZE; i++) {
         board[i].resize(BOARD_SIZE);
     }
+    bitBoard = 0;
     setupHashes(*this);
     setupBoard(*this, DEFAULT_FEN);
     seenPositions[zobristHash]++;
@@ -43,15 +45,82 @@ inline int getPieceStartRow(Piece* p) {
     return startRow + isPawn * pieceDir;
 }
 
-int Game::movePiece(Piece* p, int newX, int newY) {
+void Game::basicUndoMove(const int fromX, const int fromY, const int toX, const int toY) {
+    setBit(toY, toX);
+    setBit(fromY, fromX);
+    Piece* myPiece = getPieceAt(toX, toY);
+    Move myMove{myPiece, nullptr, fromX, fromY, toX, toY};
+    zobristHash ^= zobristScore(myPiece);
+    myPiece->undoMove(*this, myMove);
+    zobristHash ^= zobristScore(myPiece);
+    board[toY][toX] = nullptr;
+    board[fromY][fromX] = myPiece;
+}
+
+void Game::basicMove(const int fromX, const int fromY, const int toX, const int toY) {
+    setBit(fromY, fromX);
+    setBit(toY, toX);
+    Piece* myPiece = getPieceAt(fromX, fromY);
+    Move myMove{myPiece, nullptr, fromX, fromY, toX, toY};
+    zobristHash ^= zobristScore(myPiece);
+    myPiece->doMove(*this, myMove);
+    zobristHash ^= zobristScore(myPiece);
+    board[fromY][fromX] = nullptr;
+    board[toY][toX] = myPiece;
+}
+
+void Game::performCastle(MoveType moveType) {
+    switch (moveType) {
+        case MoveType::WHITE_KINGSIDE_CASTLE:
+            basicMove(7, 7, 5, 7);
+            break;
+        case MoveType::WHITE_QUEENSIDE_CASTLE:
+            basicMove(0, 7, 3, 7);
+            break;
+        case MoveType::BLACK_KINGSIDE_CASTLE:
+            basicMove(7, 0, 5, 0);
+            break;
+        case MoveType::BLACK_QUEENSIDE_CASTLE:
+            basicMove(0, 0, 3, 0);
+            break;
+    }
+}
+
+void Game::undoCastle(MoveType moveType) {
+    switch (moveType) {
+        case MoveType::WHITE_KINGSIDE_CASTLE:
+            basicUndoMove(7, 7, 5, 7);
+            break;
+        case MoveType::WHITE_QUEENSIDE_CASTLE:
+            basicUndoMove(0, 7, 3, 7);
+            break;
+        case MoveType::BLACK_KINGSIDE_CASTLE:
+            basicUndoMove(7, 0, 5, 0);
+            break;
+        case MoveType::BLACK_QUEENSIDE_CASTLE:
+            basicUndoMove(0, 0, 3, 0);
+            break;
+    }
+}
+
+int Game::movePiece(Move& move) {
     
     // Setup different parameters
+    Piece* p = move.moved;
+    int newX = move.xTo;
+    int newY = move.yTo;
     int pieceType = p->type;
     board[p->yPos][p->xPos] = nullptr;
     zobristHash ^= zobristScore(p);
     Piece* toCapture = board[newY][newX];
     bool isPawn = p->getPieceType() == PieceName::PAWN;
     bool isPromotion = isPawn && (newY == 0 || newY == Board::height-1);
+
+    // Check for castles
+    if (move.moveType > 0) {
+        gameScore += KING_CASTLE_WEIGHT * -pieceType;
+        performCastle(move.moveType);
+    }
 
     // Handle some scoring related to how close to king
     if (p->getPieceType() != PieceName::KING) {
@@ -64,16 +133,20 @@ int Game::movePiece(Piece* p, int newX, int newY) {
         gameScore += (toCapture->getPieceValue()) * -pieceType;
         gameScore += KING_CLOSE_WEIGHT * (getPieceStartRow(toCapture) - toCapture->yPos);
         zobristHash ^= zobristScore(toCapture);
+    } else {
+        setBit(newY, newX);
     }
 
     // Perform the move (We must do this before promotion, due to promotions zobrist score)
-    unique_ptr<Move> move = make_unique<Move>(Move{p, toCapture, p->xPos, p->yPos, newX, newY});
-    p->doMove(*this, *move);
-    moveHistory.emplace_back(std::move(move));
+    setBit(p->yPos, p->xPos);
+    unique_ptr<Move> myMove = make_unique<Move>(Move{p, toCapture, p->xPos, p->yPos, newX, newY, move.moveType});
+    p->doMove(*this, *myMove);
+    moveHistory.emplace_back(std::move(myMove));
 
     // Handle logic when piece promoted
     if (isPromotion) {
         Queen* queen = new Queen(newX, newY, pieceType);
+        queen->totalMoves = p->totalMoves;
         pieces.erase(p);
         setupPiece(queen);
         gameScore -= 80 * pieceType;
@@ -103,6 +176,12 @@ void Game::undoMove() {
     int pieceType = movedPiece->type;
     bool isPromotion = movedPiece != undoPiece;
 
+    // Check for castles
+    if (moveTaken->moveType > 0) {
+        gameScore -= KING_CASTLE_WEIGHT * -pieceType;
+        undoCastle(moveTaken->moveType);
+    }
+
     // Handle some scoring related to how close to king
     if (movedPiece->getPieceType() != PieceName::KING) {
         gameScore += KING_CLOSE_WEIGHT * (moveTaken->yFrom - moveTaken->yTo);
@@ -114,6 +193,8 @@ void Game::undoMove() {
         gameScore -= captured->getPieceValue() * -pieceType;
         gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
         zobristHash ^= zobristScore(captured);
+    } else {
+        setBit(moveTaken->yTo, moveTaken->xTo);
     }
 
     // Handle logic when piece promoted
@@ -128,11 +209,12 @@ void Game::undoMove() {
     }
 
     // Update the rest of the game state as needed
+    setBit(moveTaken->yFrom, moveTaken->xFrom);
     board[moveTaken->yFrom][moveTaken->xFrom] = movedPiece;
     board[moveTaken->yTo][moveTaken->xTo] = captured;
     totalMoves--;
     currentTurn = -currentTurn;
-    movedPiece->doMove(*this, *moveTaken, true);
+    movedPiece->undoMove(*this, *moveTaken);
     zobristHash ^= zobristValues[0];
     zobristHash ^= zobristScore(movedPiece);
 }
@@ -168,7 +250,7 @@ vector<unique_ptr<Move>> Game::getValidMoves() {
     vector<unique_ptr<Move>> filteredMoves;
     filteredMoves.reserve(moves.size());
     for (unique_ptr<Move>& m : moves) {
-        if (m->moved->vigorousCanDoMove(*this, m->xTo, m->yTo)) {
+        if (m->moved->vigorousCanDoMove(*this, *m)) {
             filteredMoves.emplace_back(move(m));
         }
     }
@@ -192,4 +274,9 @@ unsigned long long Game::zobristScore(Piece* p) {
     int flatBoardLoc = Board::width * p->yPos + p->xPos;
     int flatZobristLoc = 12 * flatBoardLoc;
     return zobristValues[flatZobristLoc + 2 * p->getPieceType() + (p->type == 1) + 1];
+}
+
+void Game::setBit(int gameRow, int gameCol) {
+    const std::uint64_t bitPosition = gameRow * Board::height + gameCol;
+    bitBoard ^= (static_cast<std::uint64_t>(1) << bitPosition);
 }

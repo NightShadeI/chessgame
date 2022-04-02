@@ -79,7 +79,7 @@ int BruteForceMover::quiescence(Game& game, int mult, int alpha, int beta, int d
     alpha = max(alpha, nulMove);
     int highestScore = nulMove;
     for (unique_ptr<Move>& r : responses) {
-        int seen = game.movePiece(r->moved, r->xTo, r->yTo);
+        int seen = game.movePiece(*r);
         int movementScore;
         if (seen >= 2) {
             movementScore = 0;
@@ -137,14 +137,18 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
         return movementScore(a.get(), entryMove) > movementScore(b.get(), entryMove);
     });
     int highestScore = NEGATIVE_INF;
+    MoveType lastMoveType = game.moveHistory.size() ? game.moveHistory.back()->moveType : MoveType::NORMAL;
     unique_ptr<Move> bestMove = nullptr;
     for (unique_ptr<Move>& r : responses) {
         // Igore the move if we already analysed it
-        int seen = game.movePiece(r->moved, r->xTo, r->yTo);
+        int seen = game.movePiece(*r);
         int movementScore;
         Piece* capturedPiece = r->captured;
+        const int pos = 64 * lastMoveType + 8 * r->yTo + r->xTo;
         if (seen >= 2) {
             movementScore = 0;
+        } else if (illegalMoveDetection[pos]) {
+            movementScore = MATE_SCORE - plyFromRoot - 1;
         } else if (capturedPiece && capturedPiece->getPieceType() == PieceName::KING) {
             movementScore = MATE_SCORE - plyFromRoot - 1;
         } else {
@@ -191,7 +195,7 @@ void BruteForceMover::displayDebugTrace(Game& game, int toDepth) {
         if (entry && entry->bestMove) {
             Piece* movedPiece = entry->bestMove->moved;
             float positionScore = (float)entry->score/10;
-            game.movePiece(movedPiece, entry->bestMove->xTo, entry->bestMove->yTo);
+            game.movePiece(*entry->bestMove);
             cout << i << ": Moved " << movedPiece->getPieceName() << " to (" << entry->bestMove->xTo << ", " << entry->bestMove->yTo << ") for " << positionScore << endl;
         } else {
             cout << "No more for " << i << " for some reason" << endl;

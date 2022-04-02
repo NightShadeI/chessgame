@@ -14,22 +14,25 @@ Piece::Piece(int x, int y, int ty) {
     type = ty;
     dragOffsetX = 0;
     dragOffsetY = 0;
+    totalMoves = 0;
 }
 
 void Piece::loadTexture() {
     myTexture.loadFromFile(getPiecePath());
 }
 
-void Piece::doMove(Game& game, Move& move, bool undo) {
-    // The move is in reverse if we are undoing a move!
-    if (undo) {
-        swap(move.xTo, move.xFrom);
-        swap(move.yTo, move.yFrom);
-    }
+void Piece::doMove(Game& game, Move& move) {
     xPos = move.xTo;
     yPos = move.yTo;
     dragOffsetX = 0;
     dragOffsetY = 0;
+    totalMoves++;
+}
+
+void Piece::undoMove(Game& game, Move& move) {
+    xPos = move.xFrom;
+    yPos = move.yFrom;
+    totalMoves--;
 }
 
 void Piece::setDrag(int deltaX, int deltaY) {
@@ -54,7 +57,11 @@ vector<unique_ptr<Move>> Piece::getMoves(Game& game) {
 /*
 * This function is more for humans and determing if their move is valid
 */
-bool Piece::vigorousCanDoMove(Game& game, int newX, int newY) {
+bool Piece::vigorousCanDoMove(Game& game, Move& move) {
+
+    int newX = move.xTo;
+    int newY = move.yTo;
+
     // Check the move is inside the the board
     if ((unsigned)newX >= Board::width || (unsigned)newY >= Board::height) return false;
 
@@ -87,7 +94,7 @@ bool Piece::vigorousCanDoMove(Game& game, int newX, int newY) {
     if (targetPiece && targetPiece->type == type) return false;
 
     // Check if the king can be captured
-    game.movePiece(this, newX, newY);
+    game.movePiece(move);
     vector<unique_ptr<Move>> replies = game.getCaptures();
     game.undoMove();
     bool kingCapturable = false;

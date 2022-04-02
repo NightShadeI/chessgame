@@ -26,13 +26,15 @@ class Piece {
         int dragOffsetX;
         int dragOffsetY;
         int type; // -1 for black and 1 for white
+        int totalMoves;
         sf::Texture myTexture;
         void loadTexture();
         void render(sf::RenderWindow& window);
-        void doMove(Game& game, Move& move, bool undo = false);
+        void doMove(Game& game, Move& move);
+        void undoMove(Game& game, Move& move);
         virtual vector<unique_ptr<Move>> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
-        bool vigorousCanDoMove(Game& game, int newX, int newY);
+        bool vigorousCanDoMove(Game& game, Move& move);
         virtual bool isValidMove(Game& game, int newX, int newY);
         inline virtual std::string getPieceName() { return "defaultName"; }
         inline virtual PieceName getPieceType() { return PieceName::PAWN; }

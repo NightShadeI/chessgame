@@ -18,14 +18,14 @@ unique_ptr<Move> MonteCarloMover::getMove(Game& game) {
     for (int t = 1; t <= trails; t++) {
         int randIdx = rand() % numMoves;
         unique_ptr<Move>& selectedMove = moves[randIdx];
-        game.movePiece(selectedMove->moved, selectedMove->xTo, selectedMove->yTo);
+        game.movePiece(*selectedMove);
         int d;
         for (d = 1; d < depth; d++) {
             vector<unique_ptr<Move>> someResponses = game.getValidMoves();
             if (someResponses.size() == 0) break;
             randIdx = rand() % someResponses.size();
             unique_ptr<Move>& randomMove = someResponses[randIdx];
-            game.movePiece(randomMove->moved, randomMove->xTo, randomMove->yTo);
+            game.movePiece(*randomMove);
         }
         totalScore[selectedMove.get()] += game.getGameScore() > 0 ? 1 : -1;
         timesExplored[selectedMove.get()]++;

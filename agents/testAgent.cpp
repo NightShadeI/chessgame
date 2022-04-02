@@ -68,7 +68,7 @@ int testAgent::quiescence(Game& game, int alpha, int beta, int mult) {
         return movementScore(a.get(), nullptr) > movementScore(b.get(), nullptr);
     });
     for (unique_ptr<Move>& m : moves) {
-        game.movePiece(m->moved, m->xTo, m->yTo);
+        game.movePiece(*m);
         eval = -quiescence(game, -beta, -alpha, -mult);
         game.undoMove();
         movesExplored++;
@@ -123,7 +123,7 @@ int testAgent::bruteForce(Game& game, int depth, int plyFromRoot, int alpha, int
     ttType evalType = ttType::UPPERBOUND;
     unique_ptr<Move> bestMoveInThisPosition = nullptr;
     for (unique_ptr<Move>& m : moves) {
-        game.movePiece(m->moved, m->xTo, m->yTo);
+        game.movePiece(*m);
         int eval = -bruteForce(game, depth - 1, plyFromRoot + 1, -beta, -alpha, -mult);
         game.undoMove();
         movesExplored++;

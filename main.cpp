@@ -80,8 +80,10 @@ int main() {
                     if (!selectedPiece) break;
                     int boardX = mousePos.x / Board::tileSize;
                     int boardY = mousePos.y / Board::tileSize;
-                    if (selectedPiece->vigorousCanDoMove(game, boardX, boardY)) {
-                        game.movePiece(selectedPiece, boardX, boardY);
+                    MoveType myMoveType = Move::getMoveType(*selectedPiece, boardX, boardY);
+                    Move myMove{selectedPiece, nullptr, 0, 0, boardX, boardY, myMoveType};
+                    if (selectedPiece->vigorousCanDoMove(game, myMove)) {
+                        game.movePiece(myMove);
                     } else {
                         selectedPiece->setDrag(0, 0);
                     }

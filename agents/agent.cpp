@@ -13,5 +13,5 @@ unique_ptr<Move> Agent::getMove(Game& game) {
 
 void Agent::doMove(Game& game) {
     unique_ptr<Move> agentChoice = getMove(game);
-    game.movePiece(agentChoice->moved, agentChoice->xTo, agentChoice->yTo);
+    game.movePiece(*agentChoice);
 }

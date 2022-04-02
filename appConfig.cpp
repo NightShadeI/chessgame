@@ -58,6 +58,7 @@ void setupBoard(Game& game, string& FENstring) {
         } else {
             Piece* generatedPiece = generatePiece(c, gameCol, gameRow);
             game.setupPiece(generatedPiece);
+            game.setBit(gameRow, gameCol);
             if (generatedPiece->getPieceType() == PieceName::KING) {
                 if (generatedPiece->type == 1) {
                     game.whiteKing = generatedPiece;
