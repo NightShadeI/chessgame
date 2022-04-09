@@ -25,6 +25,7 @@ class Game {
         unordered_map<unsigned long long, int> seenPositions;
         static const int KING_CLOSE_WEIGHT;
         static const int KING_CASTLE_WEIGHT;
+        static const int DEVELOPMENT_WEIGHT;
         Piece* whiteKing;
         Piece* blackKing;
         vector<unique_ptr<Move>> moveHistory;

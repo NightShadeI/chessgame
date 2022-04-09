@@ -11,6 +11,7 @@ class Knight : public Piece {
         bool isValidMove(Game& game, int newX, int newY) override;
         bool isStartingLocation() override;
         vector<unique_ptr<Move>> getMoves(Game& game) override;
+        inline bool isDevelopmentalPiece() override { return true; }
         inline int getPieceValue() override { return 30; }
 };
 

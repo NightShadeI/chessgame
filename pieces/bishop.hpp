@@ -13,6 +13,7 @@ class Bishop : public Piece {
         bool isStartingLocation() override;
         inline int getPieceValue() override { return 30; }
         inline bool isSlidingPiece() override { return true; }
+        inline bool isDevelopmentalPiece() override { return true; }
         vector<unique_ptr<Move>> getMoves(Game& game) override;
 };
 

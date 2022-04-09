@@ -40,6 +40,7 @@ class Piece {
         inline virtual std::string getPieceName() { return "defaultName"; }
         inline virtual PieceName getPieceType() { return PieceName::PAWN; }
         inline virtual bool isSlidingPiece() { return false; }
+        inline virtual bool isDevelopmentalPiece() { return false; }
         inline virtual int getPieceValue() { return 0; }
         inline virtual int getXTranslation() { return 10; }
         inline std::string getPiecePath() {

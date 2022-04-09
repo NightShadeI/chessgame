@@ -7,7 +7,8 @@
 using namespace std;
 
 const int Game::KING_CLOSE_WEIGHT = 1;
-const int Game::KING_CASTLE_WEIGHT = 8;
+const int Game::KING_CASTLE_WEIGHT = 6;
+const int Game::DEVELOPMENT_WEIGHT = 3;
 
 void Game::setupPiece(Piece* newPiece) {
     newPiece->loadTexture();
@@ -127,6 +128,11 @@ int Game::movePiece(Move& move) {
         gameScore -= KING_CLOSE_WEIGHT * (p->yPos - newY);
     }
 
+    // Handle some scoring for developing pieces
+    if (p->isDevelopmentalPiece() && p->totalMoves == 0) {
+        gameScore += DEVELOPMENT_WEIGHT * -pieceType;
+    }
+
     // Handle logic when piece captured
     if (toCapture) {
         pieces.erase(toCapture);
@@ -180,6 +186,11 @@ void Game::undoMove() {
     if (moveTaken->moveType > 0) {
         gameScore -= KING_CASTLE_WEIGHT * -pieceType;
         undoCastle(moveTaken->moveType);
+    }
+
+    // Handle some scoring for developing pieces
+    if (movedPiece->isDevelopmentalPiece() && movedPiece->totalMoves == 1) {
+        gameScore -= DEVELOPMENT_WEIGHT * -pieceType;
     }
 
     // Handle some scoring related to how close to king
