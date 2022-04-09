@@ -36,6 +36,7 @@ class Piece {
         void setDrag(int deltaX, int deltaY);
         bool vigorousCanDoMove(Game& game, Move& move);
         virtual bool isValidMove(Game& game, int newX, int newY);
+        virtual bool isStartingLocation();
         inline virtual std::string getPieceName() { return "defaultName"; }
         inline virtual PieceName getPieceType() { return PieceName::PAWN; }
         inline virtual bool isSlidingPiece() { return false; }

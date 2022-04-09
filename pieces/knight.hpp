@@ -9,6 +9,7 @@ class Knight : public Piece {
         inline std::string getPieceName() override { return "Knight"; }
         inline PieceName getPieceType() override { return PieceName::KNIGHT; }
         bool isValidMove(Game& game, int newX, int newY) override;
+        bool isStartingLocation() override;
         vector<unique_ptr<Move>> getMoves(Game& game) override;
         inline int getPieceValue() override { return 30; }
 };

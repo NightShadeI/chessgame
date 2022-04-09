@@ -10,6 +10,7 @@ class Bishop : public Piece {
         inline PieceName getPieceType() override { return PieceName::BISHOP; }
         inline int getXTranslation() override { return 8; }
         bool isValidMove(Game& game, int newX, int newY) override;
+        bool isStartingLocation() override;
         inline int getPieceValue() override { return 30; }
         inline bool isSlidingPiece() override { return true; }
         vector<unique_ptr<Move>> getMoves(Game& game) override;

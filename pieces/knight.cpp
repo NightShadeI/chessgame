@@ -37,3 +37,10 @@ vector<unique_ptr<Move>> Knight::getMoves(Game& game) {
     }
     return moves;
 }
+
+bool Knight::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 7 && (xPos == 1 || xPos == 6);
+    }
+    return yPos == 0 && (xPos == 1 || xPos == 6);
+}

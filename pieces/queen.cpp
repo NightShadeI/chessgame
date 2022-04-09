@@ -38,3 +38,10 @@ vector<unique_ptr<Move>> Queen::getMoves(Game& game) {
     }
     return moves;
 }
+
+bool Queen::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 7 && xPos == 3;
+    }
+    return yPos == 0 && xPos == 3;
+}

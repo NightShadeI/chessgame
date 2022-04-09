@@ -10,6 +10,7 @@ class Pawn : public Piece {
         inline PieceName getPieceType() override { return PieceName::PAWN; }
         inline int getXTranslation() override { return 14; }
         bool isValidMove(Game& game, int newX, int newY);
+        bool isStartingLocation() override;
         vector<unique_ptr<Move>> getMoves(Game& game) override;
         inline int getPieceValue() override { return 10; }
     private:

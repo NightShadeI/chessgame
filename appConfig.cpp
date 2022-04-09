@@ -57,6 +57,9 @@ void setupBoard(Game& game, string& FENstring) {
             gameCol += (c - '0');
         } else {
             Piece* generatedPiece = generatePiece(c, gameCol, gameRow);
+            if (!generatedPiece->isStartingLocation()) {
+                generatedPiece->totalMoves = 1;
+            }
             game.setupPiece(generatedPiece);
             game.setBit(gameRow, gameCol);
             if (generatedPiece->getPieceType() == PieceName::KING) {

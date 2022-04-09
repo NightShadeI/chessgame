@@ -64,3 +64,10 @@ vector<unique_ptr<Move>> Pawn::getMoves(Game& game) {
 
     return moves;
 }
+
+bool Pawn::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 6;
+    }
+    return yPos == 1;
+}

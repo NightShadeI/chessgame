@@ -110,3 +110,7 @@ bool Piece::vigorousCanDoMove(Game& game, Move& move) {
 bool Piece::isValidMove(Game& game, int newX, int newY) {
     return false;
 }
+
+bool Piece::isStartingLocation() {
+    return false;
+}

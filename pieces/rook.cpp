@@ -33,3 +33,10 @@ vector<unique_ptr<Move>> Rook::getMoves(Game& game) {
     }
     return moves;
 }
+
+bool Rook::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 7 && (xPos == 0 || xPos == 7);
+    }
+    return yPos == 0 && (xPos == 0 || xPos == 7);
+}

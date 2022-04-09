@@ -36,3 +36,10 @@ vector<unique_ptr<Move>> Bishop::getMoves(Game& game) {
     }
     return moves;
 }
+
+bool Bishop::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 7 && (xPos == 2 || xPos == 5);
+    }
+    return yPos == 0 && (xPos == 2 || xPos == 5);
+}

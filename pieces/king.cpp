@@ -80,3 +80,10 @@ vector<unique_ptr<Move>> King::getMoves(Game& game) {
     }
     return moves;
 }
+
+bool King::isStartingLocation() {
+    if (type == 1) {
+        return yPos == 7 && xPos == 4;
+    }
+    return yPos == 0 && xPos == 4;
+}
