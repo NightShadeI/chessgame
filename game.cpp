@@ -145,8 +145,8 @@ int Game::movePiece(Move& move) {
 
     // Perform the move (We must do this before promotion, due to promotions zobrist score)
     setBit(p->yPos, p->xPos);
-    unique_ptr<Move> myMove = make_unique<Move>(Move{p, toCapture, p->xPos, p->yPos, newX, newY, move.moveType});
-    p->doMove(*this, *myMove);
+    Move myMove = Move{p, toCapture, p->xPos, p->yPos, newX, newY, move.moveType};
+    p->doMove(*this, myMove);
     moveHistory.emplace_back(std::move(myMove));
 
     // Handle logic when piece promoted
@@ -174,18 +174,17 @@ void Game::undoMove() {
     }
 
     // Setup different parameters
-    unique_ptr<Move> moveTaken = move(moveHistory[totalMoves-1]);
-    moveHistory.pop_back();
-    Piece* movedPiece = moveTaken->moved;
-    Piece* captured = moveTaken->captured;
-    Piece* undoPiece = board[moveTaken->yTo][moveTaken->xTo];
+    Move& moveTaken = moveHistory[totalMoves-1];
+    Piece* movedPiece = moveTaken.moved;
+    Piece* captured = moveTaken.captured;
+    Piece* undoPiece = board[moveTaken.yTo][moveTaken.xTo];
     int pieceType = movedPiece->type;
     bool isPromotion = movedPiece != undoPiece;
 
     // Check for castles
-    if (moveTaken->moveType > 0) {
+    if (moveTaken.moveType > 0) {
         gameScore -= KING_CASTLE_WEIGHT * -pieceType;
-        undoCastle(moveTaken->moveType);
+        undoCastle(moveTaken.moveType);
     }
 
     // Handle some scoring for developing pieces
@@ -195,7 +194,7 @@ void Game::undoMove() {
 
     // Handle some scoring related to how close to king
     if (movedPiece->getPieceType() != PieceName::KING) {
-        gameScore += KING_CLOSE_WEIGHT * (moveTaken->yFrom - moveTaken->yTo);
+        gameScore += KING_CLOSE_WEIGHT * (moveTaken.yFrom - moveTaken.yTo);
     }
 
     // Handle logic when piece captured
@@ -205,7 +204,7 @@ void Game::undoMove() {
         gameScore -= KING_CLOSE_WEIGHT * (getPieceStartRow(captured) - captured->yPos);
         zobristHash ^= zobristScore(captured);
     } else {
-        setBit(moveTaken->yTo, moveTaken->xTo);
+        setBit(moveTaken.yTo, moveTaken.xTo);
     }
 
     // Handle logic when piece promoted
@@ -220,49 +219,50 @@ void Game::undoMove() {
     }
 
     // Update the rest of the game state as needed
-    setBit(moveTaken->yFrom, moveTaken->xFrom);
-    board[moveTaken->yFrom][moveTaken->xFrom] = movedPiece;
-    board[moveTaken->yTo][moveTaken->xTo] = captured;
+    setBit(moveTaken.yFrom, moveTaken.xFrom);
+    board[moveTaken.yFrom][moveTaken.xFrom] = movedPiece;
+    board[moveTaken.yTo][moveTaken.xTo] = captured;
     totalMoves--;
     currentTurn = -currentTurn;
-    movedPiece->undoMove(*this, *moveTaken);
+    movedPiece->undoMove(*this, moveTaken);
+    moveHistory.pop_back();
     zobristHash ^= zobristValues[0];
     zobristHash ^= zobristScore(movedPiece);
 }
 
-vector<unique_ptr<Move>> Game::getPossibleMoves() {
-    vector<unique_ptr<Move>> moves;
+vector<Move> Game::getPossibleMoves() {
+    vector<Move> moves;
     for (Piece* p : pieces) {
         if (p->type != currentTurn) continue;
-        vector<unique_ptr<Move>> possibleMoves = p->getMoves(*this);
+        vector<Move> possibleMoves = p->getMoves(*this);
         moves.insert(
             moves.end(), 
-            make_move_iterator(possibleMoves.begin()), 
-            make_move_iterator(possibleMoves.end())
+            possibleMoves.begin(), 
+            possibleMoves.end()
         );
     }
     return moves;
 } 
 
-vector<unique_ptr<Move>> Game::getCaptures() {
-    vector<unique_ptr<Move>> moves = getPossibleMoves();
-    vector<unique_ptr<Move>> filteredMoves;
+vector<Move> Game::getCaptures() {
+    vector<Move> moves = getPossibleMoves();
+    vector<Move> filteredMoves;
     filteredMoves.reserve(moves.size());
-    for (unique_ptr<Move>& m : moves) {
-        if (m->captured) {
-            filteredMoves.emplace_back(move(m));
+    for (Move& m : moves) {
+        if (m.captured) {
+            filteredMoves.emplace_back(m);
         }
     }
     return filteredMoves;
 }
 
-vector<unique_ptr<Move>> Game::getValidMoves() {
-    vector<unique_ptr<Move>> moves = getPossibleMoves();
-    vector<unique_ptr<Move>> filteredMoves;
+vector<Move> Game::getValidMoves() {
+    vector<Move> moves = getPossibleMoves();
+    vector<Move> filteredMoves;
     filteredMoves.reserve(moves.size());
-    for (unique_ptr<Move>& m : moves) {
-        if (m->moved->vigorousCanDoMove(*this, *m)) {
-            filteredMoves.emplace_back(move(m));
+    for (Move& m : moves) {
+        if (m.moved->vigorousCanDoMove(*this, m)) {
+            filteredMoves.emplace_back(m);
         }
     }
     return filteredMoves;
@@ -271,9 +271,9 @@ vector<unique_ptr<Move>> Game::getValidMoves() {
 bool Game::inCheck() {
     for (Piece* p : pieces) {
         if (p->type == currentTurn) continue;
-        vector<unique_ptr<Move>> possibleMoves = p->getMoves(*this);
-        for (unique_ptr<Move>& m : possibleMoves) {
-            if (m->captured && m->captured->getPieceType() == PieceName::KING) {
+        vector<Move> possibleMoves = p->getMoves(*this);
+        for (Move& m : possibleMoves) {
+            if (m.captured && m.captured->getPieceType() == PieceName::KING) {
                 return true;
             }
         }

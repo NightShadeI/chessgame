@@ -69,21 +69,21 @@ int BruteForceMover::quiescence(Game& game, int mult, int alpha, int beta, int d
     if (nulMove >= beta) return nulMove;
 
     // Generate and order the moves
-    vector<unique_ptr<Move>> responses = game.getCaptures();
+    vector<Move> responses = game.getCaptures();
     if (responses.size() == 0) return nulMove;
-    std::sort(responses.begin(), responses.end(), [this](unique_ptr<Move>& a, unique_ptr<Move>& b) {
-        return movementScore(a.get(), nullptr) > movementScore(b.get(), nullptr);
+    std::sort(responses.begin(), responses.end(), [this](Move& a, Move& b) {
+        return movementScore(&a, nullptr) > movementScore(&b, nullptr);
     });
 
     // Evaluate the moves
     alpha = max(alpha, nulMove);
     int highestScore = nulMove;
-    for (unique_ptr<Move>& r : responses) {
-        int seen = game.movePiece(*r);
+    for (Move& r : responses) {
+        int seen = game.movePiece(r);
         int movementScore;
         if (seen >= 2) {
             movementScore = 0;
-        } else if (r->captured->getPieceType() == PieceName::KING) {
+        } else if (r.captured->getPieceType() == PieceName::KING) {
             movementScore = MATE_SCORE - plyFromRoot - 1;
         } else {
             movementScore = -quiescence(game, -mult, -beta, -alpha, d+1, plyFromRoot+1);
@@ -129,22 +129,22 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
     if (d == 0) return quiescence(game, -mult, alpha, beta, depth, plyFromRoot);
 
     // Generate and order responses
-    vector<unique_ptr<Move>> responses = game.getPossibleMoves();
+    vector<Move> responses = game.getPossibleMoves();
     if (responses.size() == 0) return -MATE_SCORE;
 
-    Move* entryMove = entry ? entry->bestMove.get() : nullptr;
-    std::sort(responses.begin(), responses.end(), [this, entryMove](unique_ptr<Move>& a, unique_ptr<Move>& b) {
-        return movementScore(a.get(), entryMove) > movementScore(b.get(), entryMove);
+    std::optional<Move> entryMove = entry ? entry->bestMove : std::nullopt;
+    std::sort(responses.begin(), responses.end(), [this, entryMove = entryMove.has_value() ? &entryMove.value() : nullptr](Move& a, Move& b) {
+        return movementScore(&a, entryMove) > movementScore(&b, entryMove);
     });
     int highestScore = NEGATIVE_INF;
-    MoveType lastMoveType = game.moveHistory.size() ? game.moveHistory.back()->moveType : MoveType::NORMAL;
-    unique_ptr<Move> bestMove = nullptr;
-    for (unique_ptr<Move>& r : responses) {
+    MoveType lastMoveType = game.moveHistory.size() ? game.moveHistory.back().moveType : MoveType::NORMAL;
+    Move* bestMove = nullptr;
+    for (Move& r : responses) {
         // Igore the move if we already analysed it
-        int seen = game.movePiece(*r);
+        int seen = game.movePiece(r);
         int movementScore;
-        Piece* capturedPiece = r->captured;
-        const int pos = 64 * lastMoveType + 8 * r->yTo + r->xTo;
+        Piece* capturedPiece = r.captured;
+        const int pos = 64 * lastMoveType + 8 * r.yTo + r.xTo;
         if (seen >= 2) {
             movementScore = 0;
         } else if (illegalMoveDetection[pos]) {
@@ -159,7 +159,7 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
         if (movementScore > highestScore) {
             highestScore = movementScore;
             alpha = max(alpha, movementScore);
-            bestMove = move(r);
+            bestMove = &r;
         }
         if (alpha >= beta) break;
     }
@@ -173,11 +173,11 @@ int BruteForceMover::bruteForce(Game& game, int mult, int alpha, int beta, int d
 
     // Add to transposition table
     unique_ptr<ttEntry> newEntry = make_unique<ttEntry>();
-    newEntry->bestMove = move(bestMove);
+    newEntry->bestMove = bestMove == nullptr ? std::nullopt : optional{*bestMove};
     newEntry->score = correctedMateScore;
     if (highestScore <= oldAlpha) {
         newEntry->type = ttType::UPPERBOUND;
-        newEntry->bestMove = nullptr;
+        newEntry->bestMove = std::nullopt;
     } else if (highestScore >= beta) {
         newEntry->type = ttType::LOWERBOUND;
     } else {
@@ -192,13 +192,13 @@ void BruteForceMover::displayDebugTrace(Game& game, int toDepth) {
     int traceDistance = 0;
     for (int i = 1; i <= toDepth; i++) {
         unique_ptr<ttEntry>& entry = tTable[game.zobristHash];
-        if (entry && entry->bestMove) {
+        if (entry && entry->bestMove.has_value()) {
             Piece* movedPiece = entry->bestMove->moved;
             float positionScore = (float)entry->score/10;
             game.movePiece(*entry->bestMove);
-            cout << i << ": Moved " << movedPiece->getPieceName() << " to (" << entry->bestMove->xTo << ", " << entry->bestMove->yTo << ") for " << positionScore << endl;
+            std::cout << i << ": Moved " << movedPiece->getPieceName() << " to (" << entry->bestMove->xTo << ", " << entry->bestMove->yTo << ") for " << positionScore << endl;
         } else {
-            cout << "No more for " << i << " for some reason" << endl;
+            std::cout << "No more for " << i << " for some reason" << endl;
             break;
         }
         traceDistance = i;
@@ -208,7 +208,7 @@ void BruteForceMover::displayDebugTrace(Game& game, int toDepth) {
     }
 }
 
-unique_ptr<Move> BruteForceMover::getMove(Game& game) {
+Move BruteForceMover::getMove(Game& game) {
 
     // Initalise stats
     movesExplored = 0;
@@ -231,15 +231,15 @@ unique_ptr<Move> BruteForceMover::getMove(Game& game) {
     // Log some of the stats
     auto endTime = high_resolution_clock::now();
     duration<double, std::milli> totalDuration = endTime - startTime;
-    cout << "Explored a total of " << movesExplored << " moves in " << totalDuration.count() << " ms" << endl;
-    cout << "Rate of nodes : " << movesExplored/totalDuration.count() << "/ms" << endl;
-    cout << "Hit the table a total of " << tableHits << " times" << endl;
-    cout << "Reached depth of : " << reached << endl;
-    cout << "Best score: " << score/10 << endl;
+    std::cout << "Explored a total of " << movesExplored << " moves in " << totalDuration.count() << " ms" << endl;
+    std::cout << "Rate of nodes : " << movesExplored/totalDuration.count() << "/ms" << endl;
+    std::cout << "Hit the table a total of " << tableHits << " times" << endl;
+    std::cout << "Reached depth of : " << reached << endl;
+    std::cout << "Best score: " << score/10 << endl;
 
     // Return the best move
     unique_ptr<ttEntry>& rootEntry = tTable[game.zobristHash];
-    unique_ptr<Move> bestMove = move(rootEntry->bestMove);
+    Move bestMove = rootEntry->bestMove.value();
     tTable.clear();
     return bestMove;
 }

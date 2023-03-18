@@ -32,7 +32,7 @@ class Piece {
         void render(sf::RenderWindow& window);
         void doMove(Game& game, Move& move);
         void undoMove(Game& game, Move& move);
-        virtual vector<unique_ptr<Move>> getMoves(Game& game);
+        virtual vector<Move> getMoves(Game& game);
         void setDrag(int deltaX, int deltaY);
         bool vigorousCanDoMove(Game& game, Move& move);
         virtual bool isValidMove(Game& game, int newX, int newY);

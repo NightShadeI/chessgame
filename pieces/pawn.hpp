@@ -11,10 +11,10 @@ class Pawn : public Piece {
         inline int getXTranslation() override { return 14; }
         bool isValidMove(Game& game, int newX, int newY);
         bool isStartingLocation() override;
-        vector<unique_ptr<Move>> getMoves(Game& game) override;
+        vector<Move> getMoves(Game& game) override;
         inline int getPieceValue() override { return 10; }
     private:
-        inline unique_ptr<Move> generateMove(Game& game, int newX, int newY);
+        inline Move generateMove(Game& game, int newX, int newY);
 };
 
 #endif

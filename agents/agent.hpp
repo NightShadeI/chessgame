@@ -9,7 +9,7 @@
 class Agent {
     public:
         Agent();
-        virtual unique_ptr<Move> getMove(Game& game);
+        virtual Move getMove(Game& game);
         void doMove(Game& game);
 };
 

@@ -28,7 +28,7 @@ class Game {
         static const int DEVELOPMENT_WEIGHT;
         Piece* whiteKing;
         Piece* blackKing;
-        vector<unique_ptr<Move>> moveHistory;
+        vector<Move> moveHistory;
         vector<vector<Piece*>> board;
         unordered_set<Piece*> pieces;
         void setupPiece(Piece* newPiece);
@@ -40,9 +40,9 @@ class Game {
         void performCastle(MoveType castleType);
         void undoCastle(MoveType castleType);
         void undoMove();
-        vector<unique_ptr<Move>> getPossibleMoves();
-        vector<unique_ptr<Move>> getCaptures();
-        vector<unique_ptr<Move>> getValidMoves();
+        vector<Move> getPossibleMoves();
+        vector<Move> getCaptures();
+        vector<Move> getValidMoves();
         inline int getGameScore() { return gameScore; }
         inline unsigned long long zobristScore(Piece* p);
         void setBit(int gameRow, int gameCol);

@@ -25,12 +25,12 @@ bool Pawn::isValidMove(Game& game, int newX, int newY) {
     return xDiff == 0 || p;
 }
 
-inline unique_ptr<Move> Pawn::generateMove(Game& game, int newX, int newY) {
-    return make_unique<Move>(Move{this, game.getPieceAt(newX, newY), 0, 0, newX, newY});
+inline Move Pawn::generateMove(Game& game, int newX, int newY) {
+    return Move{this, game.getPieceAt(newX, newY), 0, 0, newX, newY};
 }
 
-vector<unique_ptr<Move>> Pawn::getMoves(Game& game) {
-    vector<unique_ptr<Move>> moves;
+vector<Move> Pawn::getMoves(Game& game) {
+    vector<Move> moves;
 
     if (yPos == 0 || yPos == 7) return moves;
 

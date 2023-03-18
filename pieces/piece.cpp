@@ -50,8 +50,8 @@ void Piece::render(sf::RenderWindow& window) {
     window.draw(mySprite);
 }
 
-vector<unique_ptr<Move>> Piece::getMoves(Game& game) {
-    return vector<unique_ptr<Move>>();
+vector<Move> Piece::getMoves(Game& game) {
+    return vector<Move>();
 }
 
 /*
@@ -95,11 +95,11 @@ bool Piece::vigorousCanDoMove(Game& game, Move& move) {
 
     // Check if the king can be captured
     game.movePiece(move);
-    vector<unique_ptr<Move>> replies = game.getCaptures();
+    vector<Move> replies = game.getCaptures();
     game.undoMove();
     bool kingCapturable = false;
-    for (unique_ptr<Move>& m : replies) {
-        Piece* captured = m->captured;
+    for (Move& m : replies) {
+        Piece* captured = m.captured;
         if (captured && captured->getPieceType() == PieceName::KING) {
             kingCapturable = true;
         }

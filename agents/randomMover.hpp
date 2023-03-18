@@ -6,7 +6,7 @@
 class RandomMover : public Agent {
     public:
         RandomMover();
-        unique_ptr<Move> getMove(Game& game) override;
+        Move getMove(Game& game) override;
 };
 
 #endif

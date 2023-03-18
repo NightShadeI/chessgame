@@ -14,8 +14,8 @@ bool Rook::isValidMove(Game& game, int newX, int newY) {
     return xDiff * yDiff == 0;
 }
 
-vector<unique_ptr<Move>> Rook::getMoves(Game& game) {
-    vector<unique_ptr<Move>> moves;
+vector<Move> Rook::getMoves(Game& game) {
+    vector<Move> moves;
     const std::vector<std::pair<int, int>> dirs = {
         { 0,  1},
         { 1,  0},
@@ -27,7 +27,7 @@ vector<unique_ptr<Move>> Rook::getMoves(Game& game) {
         while (curX += dir.first, curY += dir.second, (unsigned)curX < Board::width && (unsigned)curY < Board::height) {
             Piece* pieceAt = game.getPieceAt(curX, curY);
             if (pieceAt && pieceAt->type == type) break;
-            moves.emplace_back(make_unique<Move>(Move{this, game.getPieceAt(curX, curY), 0, 0, curX, curY}));
+            moves.emplace_back(Move{this, game.getPieceAt(curX, curY), 0, 0, curX, curY});
             if (pieceAt) break;
         }
     }

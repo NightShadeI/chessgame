@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 
 #include "../move.hpp"
 
@@ -13,7 +14,7 @@ enum ttType {
 
 struct ttEntry {
     ttType type;
-    unique_ptr<Move> bestMove;
+    std::optional<Move> bestMove;
     int score;
     int depth;
 };

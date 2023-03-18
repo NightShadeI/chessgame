@@ -13,8 +13,8 @@ bool Knight::isValidMove(Game& game, int newX, int newY) {
     return xDiff * yDiff == 2;
 }
 
-vector<unique_ptr<Move>> Knight::getMoves(Game& game) {
-    vector<unique_ptr<Move>> moves;
+vector<Move> Knight::getMoves(Game& game) {
+    vector<Move> moves;
     const std::vector<std::pair<int, int>> dirs = {
         {-2,  1},
         {-1,  2},
@@ -31,8 +31,7 @@ vector<unique_ptr<Move>> Knight::getMoves(Game& game) {
         if ((unsigned)newX < Board::width && (unsigned)newY < Board::height) {
             Piece* pieceAt = game.getPieceAt(newX, newY);
             if (pieceAt && pieceAt->type == type) continue;
-            unique_ptr<Move> move = make_unique<Move>();
-            moves.emplace_back(make_unique<Move>(Move{this, game.getPieceAt(newX, newY), 0, 0, newX, newY}));
+            moves.emplace_back(Move{this, game.getPieceAt(newX, newY), 0, 0, newX, newY});
         }
     }
     return moves;

@@ -17,7 +17,7 @@ class BruteForceMover : public Agent {
         inline int movementScore(Move* m, Move* optimalMove);
         int quiescence(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot);
         int bruteForce(Game& game, int mult, int alpha, int beta, int d, int plyFromRoot);
-        unique_ptr<Move> getMove(Game& game) override;
+        Move getMove(Game& game) override;
         void displayDebugTrace(Game& game, int toDepth);
 };
 

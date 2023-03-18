@@ -22,10 +22,10 @@ void Board::render(RenderWindow& window, Game& game) {
         }
     }
     if (game.moveHistory.size()) {
-        unique_ptr<Move>& lastMove = game.moveHistory[game.moveHistory.size() - 1];
-        lastMoveTile.setPosition(Board::tileSize * lastMove->xFrom, Board::tileSize * lastMove->yFrom);
+        Move& lastMove = game.moveHistory[game.moveHistory.size() - 1];
+        lastMoveTile.setPosition(Board::tileSize * lastMove.xFrom, Board::tileSize * lastMove.yFrom);
         window.draw(lastMoveTile);
-        lastMoveTile.setPosition(Board::tileSize * lastMove->xTo, Board::tileSize * lastMove->yTo);
+        lastMoveTile.setPosition(Board::tileSize * lastMove.xTo, Board::tileSize * lastMove.yTo);
         window.draw(lastMoveTile);
     }
 }
